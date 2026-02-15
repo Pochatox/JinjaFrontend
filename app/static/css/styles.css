@@ -1,0 +1,108 @@
+html body {
+  background-color: #1f2430 !important;
+  color: #e6e9ef !important;
+}
+.navbar {
+  background-color: #252b3a !important;
+  border-bottom: 1px solid #343a4d;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: #e6e9ef !important;
+}
+
+.board-info {
+  background: linear-gradient(135deg, #2c3446, #2a3142);
+  border: 1px solid #3a4154;
+  border-radius: 0.9rem;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+}
+
+.board-info h4 {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.board-info small {
+  color: #9aa4b2;
+}
+
+.board-wrapper {
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.kanban-column {
+  min-width: 320px;
+  max-width: 320px;
+}
+
+.column-card {
+  background-color: #2a3142;
+  border: 1px solid #3a4154;
+  border-radius: 0.8rem;
+}
+
+.column-header {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #cfd6e4;
+}
+
+.task-card {
+  background-color: #323a4f;
+  border: 1px solid #3f475c;
+  border-radius: 0.7rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.task-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  border-color: #4c5670;
+}
+
+.task-card h6 {
+  color: #ffffff;
+}
+
+.task-card p {
+  color: #aab2c3;
+}
+
+.priority-high {
+  border-left: 4px solid #d9534f;
+}
+
+.priority-medium {
+  border-left: 4px solid #f0ad4e;
+}
+
+.priority-low {
+  border-left: 4px solid #5cb85c;
+}
+
+.badge-soft {
+  background-color: #3a4154;
+  color: #cfd6e4;
+  border: 1px solid #4a5268;
+}
+
+.add-task {
+  background: transparent;
+  border: 1px dashed #4a5268;
+  color: #9aa4b2;
+}
+
+.add-task:hover {
+  background-color: #323a4f;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  font-size: 0.7rem;
+  background-color: #4a5268;
+}

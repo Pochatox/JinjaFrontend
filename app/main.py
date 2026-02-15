@@ -4,7 +4,10 @@ from typing import Any
 from litestar import Litestar, get
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.response import Template
+from litestar.static_files import StaticFilesConfig
 from litestar.template.config import TemplateConfig
+
+from app.controllers.auth import AuthController
 
 
 def my_template_function(ctx: dict[str, Any]) -> str:
@@ -27,10 +30,17 @@ template_config = TemplateConfig(
 
 @get("/", sync_to_thread=False)
 def index() -> Template:
-    return Template(template_name="index.html.jinja2")
+    return Template(template_name="auth/login.html")
 
 
 app = Litestar(
-    route_handlers=[index],
+    route_handlers=[AuthController],
     template_config=template_config,
+    debug=True,
+    static_files_config=[
+        StaticFilesConfig(
+            path="/static",
+            directories=["app/static"],
+        )
+    ],
 )

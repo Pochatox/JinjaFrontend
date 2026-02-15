@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация | Pochatox{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex justify-content-center">
+    <div class="card p-4 shadow"
+        style="max-width:520px; background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+        <h4 class="mb-4 text-center" style="color:#e6e9ef;">Регистрация</h4>
+
+        <form method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label" style="color:#cfd6e4;">Имя</label>
+                    <input type="text" name="first_name" class="form-control"
+                        style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label" style="color:#cfd6e4;">Фамилия</label>
+                    <input type="text" name="last_name" class="form-control"
+                        style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" style="color:#cfd6e4;">Username</label>
+                <input type="text" name="username" class="form-control"
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" style="color:#cfd6e4;">Email</label>
+                <input type="email" name="email" class="form-control"
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" style="color:#cfd6e4;">Пароль</label>
+                <input type="password" name="password" class="form-control"
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;" required>
+            </div>
+
+            <button type="submit" class="w-100"
+                style="background-color:#5a66a0; color:#e6e9ef; border:none; border-radius:0.5rem; padding:0.5rem 0; font-weight:500;">
+                Создать аккаунт
+            </button>
+        </form>
+        {% if error %}
+        <div class="alert alert-danger mt-2" style="background-color:#3a4154; color:#f2a8a8; border:none;">
+            {{ error.detail if error.detail else 'Ошибка' }}
+        </div>
+        {% endif %}
+        <div class="text-center mt-3">
+            <a href="/login" style="color:#9aa4b2; font-size:0.875rem;">Уже есть аккаунт?</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
