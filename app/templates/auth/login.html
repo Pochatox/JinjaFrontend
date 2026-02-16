@@ -28,12 +28,12 @@
         </form>
         {% if error %}
         <div class="alert alert-danger mt-2" style="background-color:#3a4154; color:#f2a8a8; border:none;">
-            {{ error.detail if error.detail else 'Ошибка' }}
+            {{ error if error else 'Ошибка' }}
         </div>
         {% endif %}
 
         <div class="text-center mt-3">
-            <a href="/registration" style="color:#9aa4b2; font-size:0.875rem;">Нет аккаунта?</a>
+            <a href="/auth/registration" style="color:#9aa4b2; font-size:0.875rem;">Нет аккаунта?</a>
         </div>
     </div>
 </div>

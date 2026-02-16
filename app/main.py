@@ -1,46 +1,82 @@
-from pathlib import Path
-from typing import Any
+import logging
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
 
-from litestar import Litestar, get
-from litestar.contrib.jinja import JinjaTemplateEngine
-from litestar.response import Template
-from litestar.static_files import StaticFilesConfig
-from litestar.template.config import TemplateConfig
+from litestar import Litestar, Request, get
+from litestar.di import Provide
+from litestar.response import Redirect, Template
+from litestar import exceptions
+from app.config import (SERVICE_NAME, HttpClient, HttpClientConfigDict,
+                        HttpClientConfigType, cors_config, logging_config,
+                        static_files_config, template_config)
+from app.handlers.auth import AuthController
+from app.http.clients import BaseAsyncHTTPClient
 
-from app.controllers.auth import AuthController
+logger = logging.getLogger('app.main')
 
 
-def my_template_function(ctx: dict[str, Any]) -> str:
-    return ctx.get("my_context_key", "nope")
-
-
-def register_template_callables(engine: JinjaTemplateEngine) -> None:
-    engine.register_template_callable(
-        key="check_context_key",
-        template_callable=my_template_function,
+@asynccontextmanager
+async def lifespan(app: Litestar) -> AsyncIterator[None]:  # noqa: WPS213
+    app.state.http_client = HttpClient(
+        HttpClientConfigType(
+            **HttpClientConfigDict,
+            handler_login=handler_login,
+            handler404=handler404
+        )
     )
+    await app.state.http_client.connect()
+
+    logger.info(f'{SERVICE_NAME}: App started')
+    yield
+
+    await app.state.http_client.close()
 
 
-template_config = TemplateConfig(
-    directory=Path(__file__).parent / "templates",
-    engine=JinjaTemplateEngine,
-    engine_callback=register_template_callables,
-)
+def provide_http_client() -> BaseAsyncHTTPClient:
+    return app.state.http_client
 
 
-@get("/", sync_to_thread=False)
-def index() -> Template:
-    return Template(template_name="auth/login.html")
+def handler_login() -> Redirect:
+    return Redirect("/auth/login")
+
+
+def handler404() -> Redirect:
+    return Redirect("/404")
+
+
+def handler5xx() -> Redirect:
+    return Redirect('/5xx')
+
+
+def exc_handler(request: Request, exc: Exception) -> Redirect:
+    if isinstance(exc, exceptions.http_exceptions.NotFoundException):
+        return handler404()
+    logger.critical("Unhandled exception", exc_info=exc)
+    return handler5xx()
+
+
+@get("/5xx", sync_to_thread=False)
+def get5xx() -> Template:
+    return Template('5xx.html')
+
+
+@get("/404", sync_to_thread=False)
+def get404() -> Template:
+    return Template('404.html')
 
 
 app = Litestar(
-    route_handlers=[AuthController],
+    lifespan=[lifespan],
+    route_handlers=[AuthController, get404, get5xx],
+    dependencies={
+        'http_client': Provide(provide_http_client, sync_to_thread=False)
+    },
+    exception_handlers={
+        Exception: exc_handler
+    },
+    cors_config=cors_config,
+    logging_config=logging_config,
     template_config=template_config,
-    debug=True,
-    static_files_config=[
-        StaticFilesConfig(
-            path="/static",
-            directories=["app/static"],
-        )
-    ],
+    static_files_config=static_files_config,
+    debug=True
 )
