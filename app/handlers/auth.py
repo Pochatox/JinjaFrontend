@@ -58,7 +58,6 @@ class AuthController(BaseController[AuthConfig]):
         )
         if http_status == HttpResponseStatuses.REDIRECT:
             return httpx_response
-
         elif httpx_response.status_code == 201:
             response = self.set_auth_tokens(Redirect('/users/projects'), httpx_response)
             return response

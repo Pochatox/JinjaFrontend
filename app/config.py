@@ -87,3 +87,8 @@ class BaseConfig:
 @dataclass(frozen=True)
 class AuthConfig(BaseConfig):
     ...
+
+
+@dataclass(frozen=True)
+class UserConfig(BaseConfig):
+    ...

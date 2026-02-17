@@ -2,14 +2,15 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from litestar import Litestar, Request, get
+from litestar import Litestar, Request, exceptions, get
 from litestar.di import Provide
 from litestar.response import Redirect, Template
-from litestar import exceptions
+
 from app.config import (SERVICE_NAME, HttpClient, HttpClientConfigDict,
                         HttpClientConfigType, cors_config, logging_config,
                         static_files_config, template_config)
 from app.handlers.auth import AuthController
+from app.handlers.user import UserController
 from app.http.clients import BaseAsyncHTTPClient
 
 logger = logging.getLogger('app.main')
@@ -67,7 +68,7 @@ def get404() -> Template:
 
 app = Litestar(
     lifespan=[lifespan],
-    route_handlers=[AuthController, get404, get5xx],
+    route_handlers=[AuthController, UserController, get404, get5xx],
     dependencies={
         'http_client': Provide(provide_http_client, sync_to_thread=False)
     },

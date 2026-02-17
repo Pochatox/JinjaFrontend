@@ -167,12 +167,15 @@ class AsyncHTTPXClient(BaseAsyncHTTPClient[AsyncHTTPXClientConfig]):
                     await_after=self_recursion
                 )
 
-        else:
+        elif httpx_response.status_code == 401 and not update_tokens:
             self.config.logger.critical(
                 f'{url} - {httpx_response.status_code} '
                 '- Unsuccessful attempt to take tokens'
             )
             raise ConnectionError('Unsuccessful attempt to take tokens')
+
+        else:
+            raise ConnectionError(f'{url} -> {httpx_response.json()}')
 
     async def close(self) -> None:
         await self.client.aclose()
