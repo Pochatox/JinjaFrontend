@@ -68,18 +68,18 @@ class BaseController(Controller, Generic[ConfigType]):
         response.set_cookie(
             key="access_token",
             value=httpx_response.extensions.get('access_token'),
-            http_only=True,
+            httponly=True,
             secure=True,
-            same_site="strict",
+            samesite="strict",
             max_age=self.config.max_tokens_age,
             path="/"
         )
         response.set_cookie(
             key="refresh_token",
             value=httpx_response.extensions.get('refresh_token'),
-            http_only=True,
+            httponly=True,
             secure=True,
-            same_site="strict",
+            samesite="strict",
             max_age=self.config.max_tokens_age,
             path=self.config.refresh_path
         )

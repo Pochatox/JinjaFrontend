@@ -18,18 +18,18 @@ class AuthController(BaseController[AuthConfig]):
         response.set_cookie(
             key="access_token",
             value=httpx_response.headers.get('X-New-Access-Token'),
-            http_only=True,
+            httponly=True,
             secure=True,
-            same_site="strict",
+            samesite="strict",
             max_age=self.config.max_tokens_age,
             path="/"
         )
         response.set_cookie(
             key="refresh_token",
             value=httpx_response.headers.get('X-New-Refresh-Token'),
-            http_only=True,
+            httponly=True,
             secure=True,
-            same_site="strict",
+            samesite="strict",
             max_age=self.config.max_tokens_age,
             path=self.config.refresh_path
         )

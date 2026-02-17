@@ -13,6 +13,7 @@ class BaseAsyncHTTPClientConfig(BaseModel):
     access_token_header: str
     refresh_token_header: str
     handler_login: Callable[[], HttpClientRedirect]
+    handler403: Callable[[], HttpClientRedirect]
     handler404: Callable[[], HttpClientRedirect]
     refresh_path: str
     timeout: float = Field(..., gt=0)

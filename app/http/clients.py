@@ -129,9 +129,13 @@ class AsyncHTTPXClient(BaseAsyncHTTPClient[AsyncHTTPXClientConfig]):
             self.config.logger.critical(msg)
             raise ConnectionError(msg)
 
+        elif httpx_response.status_code == 403:
+            self.config.logger.debug(f'{url} - {httpx_response.status_code}')
+            return self.config.handler403()
+
         elif httpx_response.status_code == 404:
             self.config.logger.debug(f'{url} - {httpx_response.status_code}')
-            return await self.config.handler404()
+            return self.config.handler404()
 
         elif httpx_response.status_code == 401 and update_tokens:
             try:

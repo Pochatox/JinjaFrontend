@@ -12,6 +12,7 @@ from app.config import (SERVICE_NAME, HttpClient, HttpClientConfigDict,
 from app.handlers.auth import AuthController
 from app.handlers.user import UserController
 from app.http.clients import BaseAsyncHTTPClient
+from app.handlers.board import BoardController
 
 logger = logging.getLogger('app.main')
 
@@ -21,6 +22,7 @@ async def lifespan(app: Litestar) -> AsyncIterator[None]:  # noqa: WPS213
     app.state.http_client = HttpClient(
         HttpClientConfigType(
             **HttpClientConfigDict,
+            handler403=handler403,
             handler_login=handler_login,
             handler404=handler404
         )
@@ -39,6 +41,10 @@ def provide_http_client() -> BaseAsyncHTTPClient:
 
 def handler_login() -> Redirect:
     return Redirect("/auth/login")
+
+
+def handler403() -> Redirect:
+    return Redirect("/403")
 
 
 def handler404() -> Redirect:
@@ -61,6 +67,11 @@ def get5xx() -> Template:
     return Template('5xx.html')
 
 
+@get("/403", sync_to_thread=False)
+def get403() -> Template:
+    return Template('403.html')
+
+
 @get("/404", sync_to_thread=False)
 def get404() -> Template:
     return Template('404.html')
@@ -68,7 +79,14 @@ def get404() -> Template:
 
 app = Litestar(
     lifespan=[lifespan],
-    route_handlers=[AuthController, UserController, get404, get5xx],
+    route_handlers=[
+        AuthController,
+        UserController,
+        BoardController,
+        get403,
+        get404,
+        get5xx
+    ],
     dependencies={
         'http_client': Provide(provide_http_client, sync_to_thread=False)
     },

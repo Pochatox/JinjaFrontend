@@ -92,3 +92,8 @@ class AuthConfig(BaseConfig):
 @dataclass(frozen=True)
 class UserConfig(BaseConfig):
     ...
+
+
+@dataclass(frozen=True)
+class BoardConfig(BaseConfig):
+    ...
