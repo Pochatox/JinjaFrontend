@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Ошибка | Pochatox{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+
+    <!-- Column card -->
+    <div class="p-4 rounded shadow-sm mb-4" style="background:#232834; border:1px solid #3a4154;">
+
+        <!-- Column meta -->
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h4 class="text-light mb-1">In Progress</h4>
+                <div class="text-secondary small">Column ID: 7c91b9d4-2c12-4f01-a9a1-82e11cdd2211</div>
+                <div class="text-secondary small">Board ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6</div>
+                <div class="text-secondary small">Position: 1</div>
+                <div class="text-secondary small">WIP limit: 5</div>
+                <div class="text-secondary small">Created at: 2026-02-19T23:28:25.661Z</div>
+            </div>
+        </div>
+
+        <p class="text-secondary mb-4">
+            Активные задачи, находящиеся в разработке.
+        </p>
+
+        <!-- Tasks -->
+
+        <!-- Task 1 -->
+        <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+            <h6 class="text-light mb-1">WebSocket shard balancing</h6>
+            <div class="text-secondary small mb-2">Priority: 10</div>
+
+            <p class="text-secondary small">
+                Реализовать распределение подключений по нескольким инстансам через Redis.
+            </p>
+
+            <div class="mb-2">
+                <span class="badge" style="background:#845ef7;">realtime</span>
+                <span class="badge" style="background:#ffd43b; color:#000;">highload</span>
+            </div>
+
+            <div class="text-secondary small">
+                Created at: 2026-02-19T23:28:25.661Z
+            </div>
+
+            <div class="mt-2 text-secondary small">
+                Assignee:
+                mpetrov (avatar: https://cdn.example.com/avatars/mpetrov.png)
+            </div>
+
+            <div class="text-secondary small">
+                Confirmed by:
+                dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
+            </div>
+        </div>
+
+        <!-- Task 2 -->
+        <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+            <h6 class="text-light mb-1">Refactor dependency injection</h6>
+            <div class="text-secondary small mb-2">Priority: 7</div>
+
+            <p class="text-secondary small">
+                Переписать DI слой с учётом OpenTelemetry и обёрток сервисов.
+            </p>
+
+            <div class="mb-2">
+                <span class="badge" style="background:#4dabf7;">backend</span>
+                <span class="badge" style="background:#ff922b;">architecture</span>
+            </div>
+
+            <div class="text-secondary small">
+                Created at: 2026-02-18T14:11:02.120Z
+            </div>
+
+            <div class="mt-2 text-secondary small">
+                Assignee:
+                jdoe (avatar: https://cdn.example.com/avatars/jdoe.png)
+            </div>
+
+            <div class="text-secondary small">
+                Confirmed by:
+                —
+            </div>
+        </div>
+
+        <!-- Task 3 -->
+        <div class="card p-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+            <h6 class="text-light mb-1">Optimize SQL queries</h6>
+            <div class="text-secondary small mb-2">Priority: 6</div>
+
+            <p class="text-secondary small">
+                Проанализировать медленные запросы и добавить индексы.
+            </p>
+
+            <div class="mb-2">
+                <span class="badge" style="background:#51cf66;">database</span>
+                <span class="badge" style="background:#ff6b6b;">performance</span>
+            </div>
+
+            <div class="text-secondary small">
+                Created at: 2026-02-17T09:00:00.000Z
+            </div>
+
+            <div class="mt-2 text-secondary small">
+                Assignee:
+                asokolov (avatar: https://cdn.example.com/avatars/asokolov.png)
+            </div>
+
+            <div class="text-secondary small">
+                Confirmed by:
+                dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

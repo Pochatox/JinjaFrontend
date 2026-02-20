@@ -145,7 +145,7 @@ class AsyncHTTPXClient(BaseAsyncHTTPClient[AsyncHTTPXClientConfig]):
 
             if error_code in [
                 errors.AccessTokenInvalid, errors.AuthorizationHeaderMissing
-            ]:
+            ] or (error_code == errors.AccessTokenExpired and not refresh_token):
                 return self.config.handler_login()
 
             elif error_code == errors.AccessTokenExpired:

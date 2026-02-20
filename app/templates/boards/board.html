@@ -3,5 +3,278 @@
 {% block title %}Ошибка | Pochatox{% endblock %}
 
 {% block content %}
-{{ board }}
+<div class="container-fluid py-4">
+
+    <!-- Board header -->
+    <div class="mb-4 p-4 rounded shadow-sm" style="background:#232834; border:1px solid #3a4154;">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h3 class="mb-1 text-light">Development Roadmap</h3>
+                <div class="text-secondary mb-2">
+                    Board ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                </div>
+                <p class="text-secondary mb-3">
+                    Основная доска разработки backend и frontend сервисов.
+                </p>
+                <div class="text-secondary" style="font-size:0.9rem;">
+                    Created at: 2026-02-19T21:09:52.500Z
+                </div>
+            </div>
+
+            <div class="text-end text-secondary" style="font-size:0.9rem;">
+                <div><strong>Owner:</strong></div>
+                <div>dsmith (David Smith)</div>
+                <div>Avatar: https://cdn.example.com/avatars/dsmith.png</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="d-flex justify-content-end gap-2 mb-3">
+        <button class="form-control" onclick="toggleForm('addColumnForm','addTaskForm')"
+            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;" required>
+            Добавить колонку
+        </button>
+        <button class="form-control" onclick="toggleForm('addTaskForm','addColumnForm')"
+            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;" required>
+            Добавить задачу
+        </button>
+    </div>
+
+    <script>
+        function toggleForm(openId, closeId) {
+            const openForm = document.getElementById(openId);
+            const closeForm = document.getElementById(closeId);
+
+            if (!closeForm.classList.contains('d-none')) {
+                return;
+            }
+
+            openForm.classList.toggle('d-none');
+        }
+    </script>
+
+    <!-- Add column form -->
+    <div id="addColumnForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
+        <form method="post" action="/columns/create" autocomplete="off">
+            <input type="hidden" name="column_board_id" value="3fa85f64-5717-4562-b3fc-2c963f66afa6">
+            <input type="hidden" name="column_created_at" value="2026-02-19T21:24:56.912Z">
+
+            <div class="mb-3">
+                <label for="column_name" class="form-label text-light">Название новой колонки</label>
+                <input id="column_name" type="text" name="column_name" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="column_description" class="form-label text-light">Описание</label>
+                <textarea id="column_description" name="column_description" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="column_wip" class="form-label text-light">WIP лимит</label>
+                <input id="column_wip" type="number" name="column_wip" class="form-control" value="5">
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('addColumnForm').classList.add('d-none')">
+                    Отмена
+                </button>
+                <button type="submit" class="btn btn-success">Создать</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Add task form -->
+    <div id="addTaskForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
+        <form method="post" action="/tasks/create" autocomplete="off">
+            <input type="hidden" name="task_board_id" value="3fa85f64-5717-4562-b3fc-2c963f66afa6">
+
+            <div class="mb-3">
+                <label for="task_name" class="form-label text-light">Название задачи</label>
+                <input id="task_name" type="text" name="task_name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="task_description" class="form-label text-light">Описание</label>
+                <textarea id="task_description" name="task_description" rows="3" class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="task_priority" class="form-label text-light">Приоритет</label>
+                <input id="task_priority" type="number" name="task_priority" class="form-control" value="5" min="0"
+                    max="10">
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('addTaskForm').classList.add('d-none')">
+                    Отмена
+                </button>
+                <button type="submit" class="btn btn-success">Создать</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Columns -->
+    <div class="d-flex gap-4 overflow-auto">
+
+        <!-- Column 1 -->
+        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
+            <div class="mb-3">
+                <h5 class="text-light mb-1">Backlog</h5>
+                <div class="text-secondary small">Position: 0</div>
+                <div class="text-secondary small">WIP limit: 20</div>
+            </div>
+
+            <!-- Task -->
+            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+                <h6 class="text-light">Implement JWT refresh</h6>
+                <div class="text-secondary small mb-2">Priority: 9</div>
+                <p class="text-secondary small">
+                    Добавить поддержку refresh токенов и blacklist.
+                </p>
+
+                <div class="mb-2">
+                    <span class="badge" style="background:#ff6b6b;">backend</span>
+                    <span class="badge" style="background:#4dabf7;">auth</span>
+                </div>
+
+                <div class="text-secondary small">
+                    Created at: 2026-02-19T21:09:52.500Z
+                </div>
+
+                <div class="text-secondary small mt-2">
+                    Assignee: jdoe (avatar: https://cdn.example.com/avatars/jdoe.png)
+                </div>
+                <div class="text-secondary small">
+                    Confirmed by: dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
+                </div>
+            </div>
+
+            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+                <h6 class="text-light">Design DB migrations</h6>
+                <div class="text-secondary small mb-2">Priority: 7</div>
+                <p class="text-secondary small">
+                    Подготовить alembic конфигурацию и CI запуск.
+                </p>
+
+                <div class="mb-2">
+                    <span class="badge" style="background:#51cf66;">database</span>
+                </div>
+
+                <div class="text-secondary small">
+                    Created at: 2026-02-18T10:15:12.100Z
+                </div>
+
+                <div class="text-secondary small mt-2">
+                    Assignee: asokolov (avatar: https://cdn.example.com/avatars/asokolov.png)
+                </div>
+                <div class="text-secondary small">
+                    Confirmed by: —
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
+            <div class="mb-3">
+                <h5 class="text-light mb-1">In Progress</h5>
+                <div class="text-secondary small">Position: 1</div>
+                <div class="text-secondary small">WIP limit: 5</div>
+            </div>
+
+            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+                <h6 class="text-light">WebSocket scaling</h6>
+                <div class="text-secondary small mb-2">Priority: 10</div>
+                <p class="text-secondary small">
+                    Реализовать горизонтальное масштабирование через Redis pub/sub.
+                </p>
+
+                <div class="mb-2">
+                    <span class="badge" style="background:#845ef7;">realtime</span>
+                    <span class="badge" style="background:#ffd43b; color:#000;">highload</span>
+                </div>
+
+                <div class="text-secondary small">
+                    Created at: 2026-02-17T08:42:11.000Z
+                </div>
+
+                <div class="text-secondary small mt-2">
+                    Assignee: mpetrov (avatar: https://cdn.example.com/avatars/mpetrov.png)
+                </div>
+                <div class="text-secondary small">
+                    Confirmed by: dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 3 -->
+        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
+            <div class="mb-3">
+                <h5 class="text-light mb-1">Review</h5>
+                <div class="text-secondary small">Position: 2</div>
+                <div class="text-secondary small">WIP limit: 3</div>
+            </div>
+
+            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+                <h6 class="text-light">Refactor permissions</h6>
+                <div class="text-secondary small mb-2">Priority: 6</div>
+                <p class="text-secondary small">
+                    Переработать RBAC и вынести в отдельный сервис.
+                </p>
+
+                <div class="mb-2">
+                    <span class="badge" style="background:#ff922b;">security</span>
+                </div>
+
+                <div class="text-secondary small">
+                    Created at: 2026-02-16T12:00:00.000Z
+                </div>
+
+                <div class="text-secondary small mt-2">
+                    Assignee: jdoe (avatar: https://cdn.example.com/avatars/jdoe.png)
+                </div>
+                <div class="text-secondary small">
+                    Confirmed by: —
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 4 -->
+        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
+            <div class="mb-3">
+                <h5 class="text-light mb-1">Done</h5>
+                <div class="text-secondary small">Position: 3</div>
+                <div class="text-secondary small">WIP limit: 0</div>
+            </div>
+
+            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+                <h6 class="text-light">Initial project setup</h6>
+                <div class="text-secondary small mb-2">Priority: 5</div>
+                <p class="text-secondary small">
+                    Настроен Litestar, Docker, CI pipeline.
+                </p>
+
+                <div class="mb-2">
+                    <span class="badge" style="background:#20c997;">infra</span>
+                </div>
+
+                <div class="text-secondary small">
+                    Created at: 2026-02-10T09:30:00.000Z
+                </div>
+
+                <div class="text-secondary small mt-2">
+                    Assignee: dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
+                </div>
+                <div class="text-secondary small">
+                    Confirmed by: ceo (avatar: https://cdn.example.com/avatars/ceo.png)
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

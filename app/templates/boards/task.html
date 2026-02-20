@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Ошибка | Pochatox{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex justify-content-center">
+    <div class="card p-4 shadow position-relative"
+         style="max-width:600px; width:100%; background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+
+        <div style="position:absolute; top:12px; right:16px; font-size:0.75rem; color:#6b7280;">
+            3fa85f64-5717-4562-b3fc-2c963f66afa6
+        </div>
+
+        <div class="d-flex align-items-center mb-4 mt-3 gap-4">
+            <!-- Assignee -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="avatar" style="width:60px; height:60px; border-radius:50%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
+                    <img src="https://i.pravatar.cc/60?img=12" alt="assignee-avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                </div>
+                <div>
+                    <div style="color:#e6e9ef; font-weight:500;">Иван Иванов</div>
+                    <div style="color:#9aa4b2;">@ivanivanov</div>
+                    <div style="color:#6fcf97; font-size:0.75rem;">Assignee</div>
+                </div>
+            </div>
+
+            <!-- Confirmed_by -->
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <div class="avatar" style="width:60px; height:60px; border-radius:50%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
+                    <img src="https://i.pravatar.cc/60?img=32" alt="confirmed-avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                </div>
+                <div>
+                    <div style="color:#e6e9ef; font-weight:500;">Мария Петрова</div>
+                    <div style="color:#9aa4b2;">@mariapetrova</div>
+                    <div style="color:#f2a8a8; font-size:0.75rem;">Confirmed by</div>
+                </div>
+            </div>
+        </div>
+
+        <h4 style="color:#e6e9ef;">Исправить баг авторизации</h4>
+        <p style="color:#cfd6e4;">Необходимо исправить проблему, из-за которой пользователи не могут войти после обновления.</p>
+
+        <div class="mb-2" style="color:#cfd6e4;">
+            <strong>Priority:</strong> 8
+        </div>
+
+        <div style="color:#9aa4b2; font-size:0.9rem;">
+            Created at: 2026-02-20 00:21:50
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-3">
+            <button class="form-control"
+                    style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;"
+                    onclick="moveTask('prev')">
+                ← В предыдущую колонку
+            </button>
+            <button class="form-control"
+                    style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;"
+                    onclick="moveTask('next')">
+                В следующую колонку →
+            </button>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

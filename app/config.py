@@ -81,7 +81,6 @@ HttpClientConfigDict = {
 @dataclass(frozen=True)
 class BaseConfig:
     max_tokens_age: int = 60 * 60 * 24 * 7
-    refresh_path: str = '/auth/refresh'
 
 
 @dataclass(frozen=True)
