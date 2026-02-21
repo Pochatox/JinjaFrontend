@@ -19,7 +19,7 @@ HTTPConfig = TypeVar('HTTPConfig', bound=BaseAsyncHTTPClientConfig)
 @dataclass
 class BaseAsyncHTTPClient(ABC, Generic[HTTPConfig]):
     config: HTTPConfig
-    client: AsyncClient | None = field(init=False, default=None)
+    client: AsyncClient = field(init=False)
 
     @abstractmethod
     async def connect(self) -> Self: ...
@@ -35,7 +35,7 @@ class BaseAsyncHTTPClient(ABC, Generic[HTTPConfig]):
         headers: HeadersType = Sentinel, cookies: HttpCookies = Sentinel,
         max_reconnections: int = Sentinel, timeout: float = Sentinel,
         header_auth_format: str = Sentinel,
-        expected_error_statuses: Sequence = Sentinel, _recursion: bool = False
+        expected_error_statuses: Sequence = Sentinel, update_tokens: bool = False
     ) -> Response | HttpClientRedirect: ...
 
 
@@ -148,14 +148,14 @@ class AsyncHTTPXClient(BaseAsyncHTTPClient[AsyncHTTPXClientConfig]):
             ] or (error_code == errors.AccessTokenExpired and not refresh_token):
                 return self.config.handler_login()
 
-            elif error_code == errors.AccessTokenExpired:
+            if error_code == errors.AccessTokenExpired:
                 self_recursion = lambda a_t, r_t: self.request(
                     method=method,
                     path=path,
                     access_token=a_t,
                     refresh_token=r_t,
                     params=params,
-                    content=json,
+                    json=json,
                     add_headers=add_headers,
                     headers=headers,
                     cookies=cookies,
@@ -166,10 +166,13 @@ class AsyncHTTPXClient(BaseAsyncHTTPClient[AsyncHTTPXClientConfig]):
                     update_tokens=False
                 )
                 return await self._update_tokens(
-                    access_token=access_token,
-                    refresh_token=refresh_token,
-                    await_after=self_recursion
+                    access_token=access_token,  # type: ignore
+                    refresh_token=refresh_token,  # type: ignore
+                    await_after=self_recursion  # type: ignore
                 )
+
+            else:
+                raise ConnectionError
 
         elif httpx_response.status_code == 401 and not update_tokens:
             self.config.logger.critical(

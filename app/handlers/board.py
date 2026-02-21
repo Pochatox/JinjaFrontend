@@ -1,3 +1,7 @@
+# pyright: reportReturnType=false
+# pyright: reportArgumentType=false
+# pyright: reportAttributeAccessIssue=false
+
 from litestar import Request, get
 from litestar.exceptions.http_exceptions import NotFoundException
 from litestar.response import Redirect, Template

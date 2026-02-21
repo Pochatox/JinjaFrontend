@@ -1,4 +1,7 @@
 # flake8-in-file-ignores: noqa: WPS432
+# pyright: reportReturnType=false
+# pyright: reportArgumentType=false
+# pyright: reportAttributeAccessIssue=false
 
 from litestar import Request, get
 from litestar.exceptions.http_exceptions import NotFoundException

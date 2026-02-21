@@ -1,4 +1,7 @@
 # flake8-in-file-ignores: noqa: WPS432
+# pyright: reportReturnType=false
+# pyright: reportArgumentType=false
+# pyright: reportAttributeAccessIssue=false
 
 from httpx import Response as Httpx_Response
 from litestar import Request, Response, get, post

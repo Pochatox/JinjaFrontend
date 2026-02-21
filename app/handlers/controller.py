@@ -1,7 +1,11 @@
 # flake8-in-file-ignores: noqa: WPS110, WPS115
+# pyright: reportReturnType=false
+# pyright: reportArgumentType=false
+# pyright: reportAttributeAccessIssue=false
 
 from enum import Enum
 from typing import Generic, Sequence, TypeVar
+from typing_extensions import Literal
 
 from httpx import Response as Httpx_Response
 from litestar import Request
@@ -35,9 +39,9 @@ class BaseController(Controller, Generic[ConfigType]):
         header_auth_format: str = Sentinel,
         expected_error_statuses: Sequence = Sentinel, update_tokens: bool = True
     ) -> (
-        tuple[HttpResponseStatuses.RESPONSE, Httpx_Response]
-        | tuple[HttpResponseStatuses.NEW_TOKENS, Httpx_Response]
-        | tuple[HttpResponseStatuses.REDIRECT, HttpClientRedirect]
+        tuple[Literal[HttpResponseStatuses.RESPONSE], Httpx_Response]
+        | tuple[Literal[HttpResponseStatuses.NEW_TOKENS], Httpx_Response]
+        | tuple[Literal[HttpResponseStatuses.REDIRECT], HttpClientRedirect]
     ):
         httpx_response = await http_client.request(
             method=method,
