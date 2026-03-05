@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Ошибка | Pochatox{% endblock %}
+{% block title %}Проверьте почту | Pochatox{% endblock %}
 
 {% block content %}
-перейдите по ссылке в письме
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="card text-center p-5 shadow-lg" style="max-width:600px; background-color:#232834; border:1px solid #3a4154; border-radius:1rem;">
+        <h1 class="display-4 mb-3" style="color:#e6e9ef;">Проверьте почту</h1>
+        <p class="mb-4" style="color:#cfd6e4; font-size:1.05rem;">
+            и перейдите по ссылке для активации аккаунта
+        </p>
+    </div>
+</div>
 {% endblock %}

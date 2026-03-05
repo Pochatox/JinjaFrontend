@@ -7,10 +7,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from litestar.config.cors import CORSConfig
-from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.logging import LoggingConfig
 from litestar.static_files import StaticFilesConfig
-from litestar.template.config import TemplateConfig
 
 from app.http.clients import AsyncHTTPXClient
 from app.http.configs import AsyncHTTPXClientConfig
@@ -52,10 +50,9 @@ logging_config = LoggingConfig(
     log_exceptions='always',
 )
 
-template_config = TemplateConfig(
-    directory=Path(__file__).parent / "templates",
-    engine=JinjaTemplateEngine
-)
+
+templates_path = Path(__file__).parent / "templates"
+
 static_files_config = [
     StaticFilesConfig(
         path="/static",
@@ -84,6 +81,11 @@ class BaseConfig:
 
 
 @dataclass(frozen=True)
+class CoreConfig(BaseConfig):
+    ...
+
+
+@dataclass(frozen=True)
 class AuthConfig(BaseConfig):
     ...
 
@@ -96,3 +98,52 @@ class UserConfig(BaseConfig):
 @dataclass(frozen=True)
 class BoardConfig(BaseConfig):
     ...
+
+
+avatars = [
+    "artichoke.png",
+    "asparagus.png",
+    "bean.png",
+    "beetroot.png",
+    "bell_pepper.png",
+    "black_radish.png",
+    "broccoli.png",
+    "carrot.png",
+    "cauliflower.png",
+    "celery.png",
+    "corn.png",
+    "cucumber.png",
+    "dill.png",
+    "eggplant.png",
+    "garlic.png",
+    "grean_pees.png",
+    "horseradish.png",
+    "jerusalem.png",
+    "Kohlabi.png",
+    "leaf_lettuce.png",
+    "leek.png",
+    "napa_cabbage.png",
+    "onion.png",
+    "parsley.png",
+    "parsnip.png",
+    "pattypan_squash.png",
+    "pod_of_peas.png",
+    "pumpkin.png",
+    "radish.png",
+    "rutabaga.png",
+    "shallot.png",
+    "sorrel.png",
+    "spinach.png",
+    "sweet_potato.png",
+    "tomato.png",
+    "turnip.png",
+    "white_cabbage.png",
+    "zucchini.png",
+]
+
+
+user_roles = {
+    10: 'Пользователь',
+    50: 'Лидер команды',
+    100: 'Владелец'
+}

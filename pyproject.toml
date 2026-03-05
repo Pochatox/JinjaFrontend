@@ -10,6 +10,7 @@ python = "^3.12"
 litestar = { extras = ["jinja"], version = "^2.20.0" }
 uvicorn = "^0.34.0"
 pydantic = "^2.12.5"
+babel = "^2.18.0"
 
 
 [tool.poetry.group.dev.dependencies]

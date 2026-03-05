@@ -1,7 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Ошибка | Pochatox{% endblock %}
+{% block title %}Доступ запрещён | Pochatox{% endblock %}
 
 {% block content %}
-403
+<div class="d-flex flex-column justify-content-center align-items-center" style="height:80vh; color:#e6e9ef; text-align:center;">
+    <h1 style="font-size:6rem; font-weight:700; color:#f28b82;">403</h1>
+    <h2 style="margin-bottom:1rem; color:#cfd6e4;">Доступ запрещён</h2>
+    <p style="max-width:400px; color:#9aa4b2; margin-bottom:2rem;">
+        У вас недостаточно прав для этого действия
+    </p>
+    <a href="/" class="btn" style="background-color:#5a66a0; color:#e6e9ef; border:none; border-radius:0.5rem; padding:0.6rem 1.2rem; text-decoration:none; transition:0.2s;">
+        Вернуться на главную
+    </a>
+</div>
 {% endblock %}

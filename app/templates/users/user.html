@@ -1,42 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}User | Pochatox{% endblock %}
+{% block title %}Пользователь | Pochatox{% endblock %}
+
 {% block content %}
 <div class="container py-5 d-flex justify-content-center">
     <div class="card p-4 shadow position-relative"
-         style="max-width:600px; width:100%; background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+        style="max-width:600px; width:100%; background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
 
         <div style="position:absolute; top:12px; right:16px; font-size:0.75rem; color:#6b7280;">
-            019c6c0e-2ef7-7447-87dd-bab94632b3c4
+            {{ user.id }}
         </div>
 
         <div class="d-flex align-items-center mb-4 mt-3">
-            <div style="width:80px; height:80px; border-radius:50%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.9rem;">
-                No avatar
+            {% if user.avatar %}
+            <img src="/static/avatars/{{ user.avatar }}" alt="аватар"
+                style="width:80px; height:80px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+            {% else %}
+            <div style="width:80px; height:80px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268;
+                        display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.9rem;">
+                Нет аватара
             </div>
+            {% endif %}
+
             <div class="ms-4">
                 <h4 style="color:#e6e9ef; margin:0;">
-                    werwer werwer
+                    {{ user.first_name }} {{ user.last_name }}
                 </h4>
-                <div style="color:#9aa4b2;">@werwer</div>
+                <div style="color:#9aa4b2;">@{{ user.username }}</div>
             </div>
         </div>
 
         <div class="mb-2" style="color:#cfd6e4;">
-            <strong>Email:</strong> werwer@dfdf.sdf
+            <strong>Email:</strong> {{ user.email }}
         </div>
 
         <div class="mb-2" style="color:#cfd6e4;">
-            <strong>Status:</strong>
-            <span style="color:#f2a8a8;">Inactive</span>
+            <strong>Статус:</strong>
+            {% if user.is_active %}
+            <span style="color:#34d399;">Активен</span>
+            {% else %}
+            <span style="color:#f2a8a8;">Не активен</span>
+            {% endif %}
         </div>
 
         <div style="color:#9aa4b2; font-size:0.9rem;">
-            Registered: 2026-02-17T14:43:15.060143
+            Зарегистрирован: {{ user.created_at | datetimeformat }}
         </div>
 
     </div>
 </div>
-
-
 {% endblock %}

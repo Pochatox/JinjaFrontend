@@ -5,14 +5,17 @@ from typing import AsyncIterator
 from litestar import Litestar, Request, exceptions, get
 from litestar.di import Provide
 from litestar.response import Redirect, Template
+from litestar.template.config import TemplateConfig
 
 from app.config import (SERVICE_NAME, HttpClient, HttpClientConfigDict,
                         HttpClientConfigType, cors_config, logging_config,
-                        static_files_config, template_config)
+                        static_files_config, templates_path)
 from app.handlers.auth import AuthController
+from app.handlers.board import BoardController
+from app.handlers.core import CoreController
 from app.handlers.user import UserController
 from app.http.clients import BaseAsyncHTTPClient
-from app.handlers.board import BoardController
+from app.jinja_engine import get_jinja_engine
 
 logger = logging.getLogger('app.main')
 
@@ -80,6 +83,7 @@ def get404() -> Template:
 app = Litestar(
     lifespan=[lifespan],
     route_handlers=[
+        CoreController,
         AuthController,
         UserController,
         BoardController,
@@ -93,9 +97,11 @@ app = Litestar(
     exception_handlers={
         Exception: exc_handler
     },
+    template_config=TemplateConfig(
+        engine=get_jinja_engine(templates_path),
+    ),
     cors_config=cors_config,
     logging_config=logging_config,
-    template_config=template_config,
     static_files_config=static_files_config,
     debug=True
 )

@@ -3,11 +3,13 @@
 # pyright: reportArgumentType=false
 # pyright: reportAttributeAccessIssue=false
 
+import random
+
 from httpx import Response as Httpx_Response
 from litestar import Request, Response, get, post
 from litestar.response import Redirect, Template
 
-from app.config import AuthConfig, HttpClient
+from app.config import AuthConfig, HttpClient, avatars
 from app.handlers.controller import BaseController, HttpResponseStatuses
 
 
@@ -72,7 +74,13 @@ class AuthController(BaseController[AuthConfig]):
 
     @get("/registration", name="registration")
     async def registration_page(self) -> Template:
-        return Template("auth/registration.html")
+        return Template(
+            "auth/registration.html",
+            context={
+                'avatars': avatars,
+                'avatar': random.choice(avatars)
+            }
+        )
 
     @post("/registration")
     async def registration_submit(
@@ -90,7 +98,7 @@ class AuthController(BaseController[AuthConfig]):
                 "password": form.get("password"),
                 "first_name": form.get("first_name"),
                 "last_name": form.get("last_name"),
-                "avatar": '',
+                "avatar": form.get("avatar"),
             },
             expected_error_statuses=[409, 422],
             update_tokens=False

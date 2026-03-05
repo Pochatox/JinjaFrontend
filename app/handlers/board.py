@@ -2,8 +2,8 @@
 # pyright: reportArgumentType=false
 # pyright: reportAttributeAccessIssue=false
 
-from litestar import Request, get
-from litestar.exceptions.http_exceptions import NotFoundException
+from litestar import Request, get, post
+from litestar.exceptions.http_exceptions import HTTPException, NotFoundException
 from litestar.response import Redirect, Template
 
 from app.config import BoardConfig, HttpClient
@@ -61,3 +61,31 @@ class BoardController(BaseController[BoardConfig]):
             return response
         else:
             raise NotFoundException
+
+    @post("/", name='create_board')
+    async def create_board(
+        self, request: Request, http_client: HttpClient
+    ) -> Template | Redirect:
+        form = await request.form()
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='post',
+            path='/board',
+            json={
+                "name": form.get("boardName"),
+                "description": form.get("boardDescription")
+            }
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        if httpx_response.status_code == 201:
+            response = Template(
+                "boards/board.html",
+                context={"board": httpx_response.json()}
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            raise HTTPException

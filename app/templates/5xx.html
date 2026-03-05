@@ -3,5 +3,16 @@
 {% block title %}Ошибка | Pochatox{% endblock %}
 
 {% block content %}
-Что то пошло не так
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="card text-center p-5 shadow-lg"
+         style="max-width:500px; width:100%; background-color:#232834; border:1px solid #3a4154; border-radius:1rem;">
+        <h1 class="display-3 mb-3" style="color:#f2a8a8;">Ошибка</h1>
+        <p class="mb-4" style="color:#cfd6e4; font-size:1.05rem;">
+            Что-то пошло не так. Разработчики уже уведомлены
+        </p>
+        <a href="/" class="btn" style="background-color:#5a66a0; color:#e6e9ef; border-radius:0.5rem; padding:0.5rem 1rem;">
+            На главную
+        </a>
+    </div>
+</div>
 {% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Мои доски | Pochatox{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4 gap-3">
+        <div>
+            <h3 style="color:#e6e9ef; margin-bottom:0.5rem;">Доски</h3>
+            <p style="max-width:400px; color:#9aa4b2; margin-bottom:0;">
+                В которых вы состоите
+            </p>
+        </div>
+        <button class="btn" data-bs-toggle="collapse" data-bs-target="#createBoardForm"
+            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+            Создать доску
+        </button>
+    </div>
+
+    <div class="collapse mb-4" id="createBoardForm">
+        <div class="card p-4 shadow-sm" style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+            <form method="post" action="{{ url_for('create_board') }}">
+                <div class="mb-3">
+                    <label for="boardName" style="color:#cfd6e4;">Название доски</label>
+                    <input type="text" name="boardName" id="boardName" class="form-control"
+                        style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;"
+                        required>
+                </div>
+                <div class="mb-3">
+                    <label for="boardDescription" style="color:#cfd6e4;">Описание</label>
+                    <textarea name="boardDescription" id="boardDescription" class="form-control"
+                        style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;"
+                        maxlength="4096" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color:#5a66a0; color:#e6e9ef;">
+                    Создать
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Сетка досок -->
+    <div class="row g-4">
+        {% for board in boards %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card p-3 shadow-sm h-100"
+                 style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+
+                <div class="d-flex align-items-center mb-3">
+                    {% if board.owner.avatar %}
+                    <img src="/static/avatars/{{ board.owner.avatar }}" alt="avatar"
+                         style="width:48px; height:48px; border-radius:50%; border:1px solid #4a5268; object-fit:cover;">
+                    {% else %}
+                    <div style="width:48px; height:48px; border-radius:50%; background-color:#2a2f3f; border:1px solid #4a5268;
+                                display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
+                        No avatar
+                    </div>
+                    {% endif %}
+                    <div class="ms-2" style="color:#cfd6e4; font-size:0.85rem;">
+                        <div><strong>Владелец:</strong> {{ board.owner.first_name }} {{ board.owner.last_name }}</div>
+                        <div style="font-size:0.8rem; color:#9aa4b2;">@{{ board.owner.username }}</div>
+                    </div>
+                </div>
+
+                <h5 style="color:#e6e9ef; margin-bottom:0.5rem;">{{ board.name }}</h5>
+                <p style="color:#cfd6e4; font-size:0.9rem; margin-bottom:1rem;">
+                    {{ board.description[:100] }}{% if board.description|length > 100 %}...{% endif %}
+                </p>
+
+                <div class="d-flex justify-content-between align-items-center mt-auto" style="font-size:0.8rem;">
+                    <div style="color:#9aa4b2;">Создано: {{ board.created_at | datetimeformat }}</div>
+                    <div style="color:#845ef7;">{{ board.user_role | userrole }}</div>
+                </div>
+
+                <a href="/board/{{ board.id }}" style="position:absolute; inset:0;"></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
