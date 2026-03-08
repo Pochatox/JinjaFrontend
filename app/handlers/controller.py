@@ -85,7 +85,7 @@ class BaseController(Controller, Generic[ConfigType]):
             secure=True,
             samesite="strict",
             max_age=self.config.max_tokens_age,
-            path=self.config.refresh_path
+            path="/"
         )
         return response
 

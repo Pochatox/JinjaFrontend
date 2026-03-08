@@ -19,7 +19,8 @@
     </div>
 
     <div class="collapse mb-4" id="createBoardForm">
-        <div class="card p-4 shadow-sm" style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+        <div class="card p-4 shadow-sm"
+            style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
             <form method="post" action="{{ url_for('create_board') }}">
                 <div class="mb-3">
                     <label for="boardName" style="color:#cfd6e4;">Название доски</label>
@@ -40,19 +41,19 @@
         </div>
     </div>
 
-    <!-- Сетка досок -->
     <div class="row g-4">
         {% for board in boards %}
         <div class="col-md-6 col-lg-4">
             <div class="card p-3 shadow-sm h-100"
-                 style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+                style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
 
                 <div class="d-flex align-items-center mb-3">
                     {% if board.owner.avatar %}
                     <img src="/static/avatars/{{ board.owner.avatar }}" alt="avatar"
-                         style="width:48px; height:48px; border-radius:50%; border:1px solid #4a5268; object-fit:cover;">
+                        style="width:48px; height:48px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
                     {% else %}
-                    <div style="width:48px; height:48px; border-radius:50%; background-color:#2a2f3f; border:1px solid #4a5268;
+                    <div
+                        style="width:48px; height:48px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268;
                                 display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
                         No avatar
                     </div>
@@ -70,7 +71,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-auto" style="font-size:0.8rem;">
                     <div style="color:#9aa4b2;">Создано: {{ board.created_at | datetimeformat }}</div>
-                    <div style="color:#845ef7;">{{ board.user_role | userrole }}</div>
+                    <div style="color:#5c69ae;">{{ board.user_role | userrole }}</div>
                 </div>
 
                 <a href="/board/{{ board.id }}" style="position:absolute; inset:0;"></a>

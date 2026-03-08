@@ -1,69 +1,113 @@
 {% extends "base.html" %}
 
-{% block title %}Ошибка | Pochatox{% endblock %}
+{% block title %}{{ board.name }} | Pochatox{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
 
-    <!-- Board header -->
     <div class="mb-4 p-4 rounded shadow-sm" style="background:#232834; border:1px solid #3a4154;">
         <div class="d-flex justify-content-between align-items-start">
             <div>
-                <h3 class="mb-1 text-light">Development Roadmap</h3>
+                <h3 class="mb-1 text-light">{{ board.name }}</h3>
                 <div class="text-secondary mb-2">
-                    Board ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                    Board ID: {{ board.id }}
                 </div>
                 <p class="mb-3" style="color:#c1c7d0;">
-                    Основная доска разработки backend и frontend сервисов.
+                    {{ board.description }}
                 </p>
                 <div class="text-secondary" style="font-size:0.9rem;">
-                    Created at: 2026-02-19T21:09:52.500Z
+                    Дата создания: {{ board.created_at | datetimeformat }}
                 </div>
             </div>
 
-            <div class="text-end text-secondary" style="font-size:0.9rem;">
-                <div><strong>Owner:</strong></div>
-                <div>dsmith (David Smith)</div>
-                <div>Avatar: https://cdn.example.com/avatars/dsmith.png</div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-secondary" style="font-size:0.9rem;">Владелец:</div>
+                <a href="/user/username/{{ board.owner.username }}"
+                    class="d-flex align-items-center gap-2 text-decoration-none">
+                    <img src="/static/avatars/{{ board.owner.avatar }}" alt="avatar"
+                        style="width:48px; height:48px; border-radius:12%; border:1px solid #4a5268; object-fit:cover;">
+                    <div class="text-light">
+                        <div><strong>{{ board.owner.first_name }} {{ board.owner.last_name }}</strong></div>
+                        <div class="text-secondary" style="font-size:0.85rem;">@{{ board.owner.username }}</div>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
-
-    <!-- Buttons -->
     <div class="d-flex justify-content-end gap-2 mb-3">
-        <button class="form-control" onclick="toggleForm('addColumnForm','addTaskForm')"
-            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;" required>
+        <button class="form-control" onclick="toggleForm('addColumnForm', ['addTaskForm','addLabelForm'])"
+            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
             Добавить колонку
         </button>
-        <button class="form-control" onclick="toggleForm('addTaskForm','addColumnForm')"
-            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;" required>
+        <button class="form-control" onclick="toggleForm('addTaskForm', ['addColumnForm','addLabelForm'])"
+            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
             Добавить задачу
+        </button>
+        <button class="form-control" onclick="toggleForm('addLabelForm', ['addColumnForm','addTaskForm'])"
+            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+            Добавить метку
         </button>
     </div>
 
     <script>
-        function toggleForm(openId, closeId) {
+        function toggleForm(openId, closeIds) {
             const openForm = document.getElementById(openId);
-            const closeForm = document.getElementById(closeId);
 
-            if (!closeForm.classList.contains('d-none')) {
-                return;
-            }
+            closeIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('d-none');
+            });
 
             openForm.classList.toggle('d-none');
         }
     </script>
 
-    <!-- Add column form -->
-    <div id="addColumnForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
-        <form method="post" action="/columns/create" autocomplete="off">
-            <input type="hidden" name="column_board_id" value="3fa85f64-5717-4562-b3fc-2c963f66afa6">
-            <input type="hidden" name="column_created_at" value="2026-02-19T21:24:56.912Z">
+    <div id="addLabelForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
+        <form method="post" action="/board/label" autocomplete="off">
+            <input type="hidden" name="label_board_id" value="{{ board.id }}">
+            <div class="mb-3">
+                <label class="form-label text-light">Название метки | Цвет</label>
 
+                <div class="d-flex align-items-center"
+                    style="max-width:260px; background:#2a2f3f; border:1px solid #4a5268; border-radius:6px; overflow:hidden;">
+
+                    <input id="label_name" type="text" name="label_name" minlength="1" maxlength="7" required
+                        placeholder="BUG" class="form-control border-0"
+                        style="background:transparent; color:#e6e9ef; padding:0.45rem; box-shadow:none;">
+
+                    <input id="label_color" type="color" name="label_color" value="#6c8cff"
+                        style="width:42px; height:34px; border:0; border-left:1px solid #4a5268; background:#2a2f3f; cursor:pointer;">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('addLabelForm').classList.add('d-none')">
+                    Отмена
+                </button>
+                <button type="submit" class="btn btn-success">Создать</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        const colorInput = document.getElementById('label_color');
+        const preview = document.getElementById('label_color_preview');
+
+        colorInput.addEventListener('input', () => {
+            preview.style.backgroundColor = colorInput.value;
+        });
+    </script>
+
+    <div id="addColumnForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
+        <form method="post" action="/board/column" autocomplete="off" id="columnForm">
+            <input type="hidden" name="column_board_id" value="{{ board.id }}">
             <div class="mb-3">
                 <label for="column_name" class="form-label text-light">Название новой колонки</label>
                 <input id="column_name" type="text" name="column_name" class="form-control"
-                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;">
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;"
+                    minlength="2" maxlength="24" required>
             </div>
 
             <div class="mb-3">
@@ -74,212 +118,246 @@
 
             <div class="mb-3">
                 <label for="column_wip" class="form-label text-light">WIP лимит</label>
-                <input id="column_wip" type="number" name="column_wip" class="form-control"
-                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;">
+                <input id="column_wip" type="number" name="column_wip" class="form-control" min="1"
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="column_position" class="form-label text-light">Позиция</label>
+                <input id="column_position" type="number" name="position" class="form-control" min="1"
+                    max="{{ board.columns|length + 1 }}"
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;" required>
             </div>
 
             <div class="d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-secondary"
-                    onclick="document.getElementById('addColumnForm').classList.add('d-none')">
-                    Отмена
+                    onclick="document.getElementById('addColumnForm').classList.add('d-none')">Отмена
                 </button>
                 <button type="submit" class="btn btn-success">Создать</button>
             </div>
         </form>
     </div>
 
-    <!-- Add task form -->
+    <script>
+        document.getElementById('columnForm').addEventListener('submit', function (e) {
+            const name = document.getElementById('column_name').value.trim();
+            const wip = parseInt(document.getElementById('column_wip').value, 10);
+            const position = parseInt(document.getElementById('column_position').value, 10);
+            const maxPosition = {{ board.columns| length + 1
+        }};
+
+        if (name.length < 2 || name.length > 24) {
+            alert("Название колонки должно быть от 2 до 24 символов");
+            e.preventDefault();
+            return;
+        }
+
+        if (wip <= 0) {
+            alert("WIP лимит должен быть больше 0");
+            e.preventDefault();
+            return;
+        }
+
+        if (position < 1 || position > maxPosition) {
+            alert(`Позиция должна быть от 1 до ${maxPosition}`);
+            e.preventDefault();
+            return;
+        }
+});
+    </script>
+
     <div id="addTaskForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
-        <form method="post" action="/tasks/create" autocomplete="off">
-            <input type="hidden" name="task_board_id" value="3fa85f64-5717-4562-b3fc-2c963f66afa6">
+        <form method="post" action="/board/task" autocomplete="off" onsubmit="return validateTaskForm()">
+            <input type="hidden" name="task_board_id" value="{{ board.id }}">
 
             <div class="mb-3">
                 <label for="task_name" class="form-label text-light">Название задачи</label>
                 <input id="task_name" type="text" name="task_name" class="form-control"
-                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;" required>
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;" required
+                    minlength="2" maxlength="24">
             </div>
 
             <div class="mb-3">
                 <label for="task_description" class="form-label text-light">Описание</label>
                 <textarea id="task_description" name="task_description" rows="3" class="form-control"
-                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;"></textarea>
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;"
+                    maxlength="4096"></textarea>
             </div>
 
             <div class="mb-3">
                 <label for="task_priority" class="form-label text-light">Приоритет</label>
-                <input id="task_priority" type="number" name="task_priority" class="form-control" value="5" min="0"
-                    max="10" style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;">
+                <div id="priority-wrapper" class="position-relative" style="width:100%;">
+                    <input type="hidden" name="task_priority" id="task_priority_input" value="10">
+                    <div id="priority-display" class="form-control fw-bold"
+                        style="background-color:#b8e994; color:#000; cursor:pointer; border:1px solid #4a5268; padding:0.6rem;">
+                        низкий
+                    </div>
+                    <ul id="priority-options" class="list-group position-absolute d-none"
+                        style="width:100%; z-index:1000; max-height:200px; overflow-y:auto;">
+                        <li class="list-group-item fw-bold" data-value="10"
+                            style="background-color:#b8e994; cursor:pointer;">
+                            низкий
+                        </li>
+                        <li class="list-group-item fw-bold" data-value="20"
+                            style="background-color:#d8f5a2; cursor:pointer;">
+                            средний
+                        </li>
+                        <li class="list-group-item fw-bold" data-value="30"
+                            style="background-color:#fff3b0; cursor:pointer;">
+                            высокий
+                        </li>
+                        <li class="list-group-item fw-bold" data-value="40"
+                            style="background-color:#ffd8a8; cursor:pointer;">
+                            очень высоко
+                        </li>
+                        <li class="list-group-item fw-bold" data-value="50"
+                            style="background-color:#ffa8a8; cursor:pointer;">
+                            КРИТИЧНО
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <script>
+                const wrapper = document.getElementById('priority-wrapper');
+                const display = document.getElementById('priority-display');
+                const options = document.getElementById('priority-options');
+                const input = document.getElementById('task_priority_input');
+
+                display.addEventListener('click', () => {
+                    options.classList.toggle('d-none');
+                });
+
+                options.querySelectorAll('li').forEach(li => {
+                    li.addEventListener('click', () => {
+                        input.value = li.dataset.value;
+                        display.textContent = li.textContent;
+                        display.style.backgroundColor = li.style.backgroundColor;
+                        options.classList.add('d-none');
+                    });
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!wrapper.contains(e.target)) {
+                        options.classList.add('d-none');
+                    }
+                });
+            </script>
+            <script>
+                const prioritySelect = document.getElementById('task_priority');
+
+                function updatePriorityColor() {
+                    const selectedOption = prioritySelect.options[prioritySelect.selectedIndex];
+                    const color = selectedOption.getAttribute('data-color');
+                    prioritySelect.style.backgroundColor = color;
+                    prioritySelect.style.color = (color === '#ff6b6b') ? '#fff' : '#000';
+                }
+
+                updatePriorityColor();
+
+                prioritySelect.addEventListener('change', updatePriorityColor);
+            </script>
+
+            <div class="mb-3">
+                <label for="task_labels" class="form-label text-light">Метки</label>
+                <div class="d-flex flex-wrap gap-5"
+                    style="background:#2a2f3f; border:1px solid #4a5268; padding:0.4rem; border-radius:6px;">
+                    {% for label in board.labels %}
+                    <label class="form-check form-check-inline m-0" style="cursor:pointer;">
+                        <input class="form-check-input" type="checkbox" name="task_labels" value="{{ label.id }}">
+                        <span class="badge" style="background-color:{{ label.color }}; color:#fff; margin-right:2px;">{{
+                            label.name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
             </div>
 
             <div class="d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-secondary"
-                    onclick="document.getElementById('addTaskForm').classList.add('d-none')">
-                    Отмена
+                    onclick="document.getElementById('addTaskForm').classList.add('d-none')">Отмена
                 </button>
                 <button type="submit" class="btn btn-success">Создать</button>
             </div>
+
         </form>
     </div>
 
-    <!-- Columns -->
+    <script>
+        function validateTaskForm() {
+            const name = document.getElementById("task_name").value.trim();
+            const description = document.getElementById("task_description").value.trim();
+
+            if (name.length < 2 || name.length > 24) {
+                alert("от 2 до 24 символов.");
+                return false;
+            }
+
+            if (description.length > 4096) {
+                alert("Описание задачи не может превышать 4096 символов.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        {% for label in board.labels %}
+        <span class="px-2 py-1 small" style="
+                background-color: {{ label.color }};
+                color:#fff;
+                border-radius:6px;
+                font-weight:500;
+                letter-spacing:0.03em;
+                user-select:none;
+            ">
+            {{ label.name }}
+        </span>
+        {% endfor %}
+    </div>
     <div class="d-flex gap-4 overflow-auto">
-
-        <!-- Column 1 -->
+        {% for column in board.columns %}
         <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
             <div class="mb-3">
-                <h5 class="text-light mb-1">Backlog</h5>
-                <div class="text-secondary small">Position: 0</div>
-                <div class="text-secondary small">WIP limit: 20</div>
+                <h5 class="text-light mb-1">{{ column.name }}</h5>
+                <div class="text-secondary small">Position: {{ column.position }}</div>
+                <div class="text-secondary small">WIP limit: {{ column.wip }}</div>
             </div>
 
-            <!-- Task -->
+            {% for task in column.tasks %}
             <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
-                <h6 class="text-light">Implement JWT refresh</h6>
-                <div class="text-secondary small mb-2">Priority: 9</div>
-                <p class="text-secondary small">
-                    Добавить поддержку refresh токенов и blacklist.
-                </p>
+                <h6 class="text-light">{{ task.name }}</h6>
+                <div class="text-secondary small mb-2">Priority: {{ task.priority }}</div>
+                <p class="text-secondary small">{{ task.description }}</p>
 
                 <div class="mb-2">
-                    <span class="badge" style="background:#ff6b6b;">backend</span>
-                    <span class="badge" style="background:#4dabf7;">auth</span>
+                    {% for label in task.labels %}
+                    <span class="badge" style="background:{{ label.color }};">{{ label.name }}</span>
+                    {% endfor %}
                 </div>
 
-                <div class="text-secondary small">
-                    Created at: 2026-02-19T21:09:52.500Z
-                </div>
-
-                <div class="text-secondary small mt-2">
-                    Assignee: jdoe (avatar: https://cdn.example.com/avatars/jdoe.png)
-                </div>
-                <div class="text-secondary small">
-                    Confirmed by: dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
-                </div>
-            </div>
-
-            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
-                <h6 class="text-light">Design DB migrations</h6>
-                <div class="text-secondary small mb-2">Priority: 7</div>
-                <p class="text-secondary small">
-                    Подготовить alembic конфигурацию и CI запуск.
-                </p>
-
-                <div class="mb-2">
-                    <span class="badge" style="background:#51cf66;">database</span>
-                </div>
-
-                <div class="text-secondary small">
-                    Created at: 2026-02-18T10:15:12.100Z
-                </div>
+                <div class="text-secondary small">Created at: {{ task.created_at | datetimeformat }}</div>
 
                 <div class="text-secondary small mt-2">
-                    Assignee: asokolov (avatar: https://cdn.example.com/avatars/asokolov.png)
+                    Assignee:
+                    {% if task.assignee %}
+                    {{ task.assignee.username }}
+                    <img src="/static/avatars/{{ task.assignee.avatar }}" alt="avatar"
+                        style="width:32px; height:32px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+                    {% else %}—{% endif %}
                 </div>
                 <div class="text-secondary small">
-                    Confirmed by: —
+                    Confirmed by:
+                    {% if task.confirmed_by %}
+                    {{ task.confirmed_by.username }}
+                    <img src="/static/avatars/{{ task.confirmed_by.avatar }}" alt="avatar"
+                        style="width:32px; height:32px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+                    {% else %}—{% endif %}
                 </div>
             </div>
+            {% endfor %}
         </div>
-
-        <!-- Column 2 -->
-        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
-            <div class="mb-3">
-                <h5 class="text-light mb-1">In Progress</h5>
-                <div class="text-secondary small">Position: 1</div>
-                <div class="text-secondary small">WIP limit: 5</div>
-            </div>
-
-            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
-                <h6 class="text-light">WebSocket scaling</h6>
-                <div class="text-secondary small mb-2">Priority: 10</div>
-                <p class="text-secondary small">
-                    Реализовать горизонтальное масштабирование через Redis pub/sub.
-                </p>
-
-                <div class="mb-2">
-                    <span class="badge" style="background:#845ef7;">realtime</span>
-                    <span class="badge" style="background:#ffd43b; color:#000;">highload</span>
-                </div>
-
-                <div class="text-secondary small">
-                    Created at: 2026-02-17T08:42:11.000Z
-                </div>
-
-                <div class="text-secondary small mt-2">
-                    Assignee: mpetrov (avatar: https://cdn.example.com/avatars/mpetrov.png)
-                </div>
-                <div class="text-secondary small">
-                    Confirmed by: dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
-                </div>
-            </div>
-        </div>
-
-        <!-- Column 3 -->
-        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
-            <div class="mb-3">
-                <h5 class="text-light mb-1">Review</h5>
-                <div class="text-secondary small">Position: 2</div>
-                <div class="text-secondary small">WIP limit: 3</div>
-            </div>
-
-            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
-                <h6 class="text-light">Refactor permissions</h6>
-                <div class="text-secondary small mb-2">Priority: 6</div>
-                <p class="text-secondary small">
-                    Переработать RBAC и вынести в отдельный сервис.
-                </p>
-
-                <div class="mb-2">
-                    <span class="badge" style="background:#ff922b;">security</span>
-                </div>
-
-                <div class="text-secondary small">
-                    Created at: 2026-02-16T12:00:00.000Z
-                </div>
-
-                <div class="text-secondary small mt-2">
-                    Assignee: jdoe (avatar: https://cdn.example.com/avatars/jdoe.png)
-                </div>
-                <div class="text-secondary small">
-                    Confirmed by: —
-                </div>
-            </div>
-        </div>
-
-        <!-- Column 4 -->
-        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
-            <div class="mb-3">
-                <h5 class="text-light mb-1">Done</h5>
-                <div class="text-secondary small">Position: 3</div>
-                <div class="text-secondary small">WIP limit: 0</div>
-            </div>
-
-            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
-                <h6 class="text-light">Initial project setup</h6>
-                <div class="text-secondary small mb-2">Priority: 5</div>
-                <p class="text-secondary small">
-                    Настроен Litestar, Docker, CI pipeline.
-                </p>
-
-                <div class="mb-2">
-                    <span class="badge" style="background:#20c997;">infra</span>
-                </div>
-
-                <div class="text-secondary small">
-                    Created at: 2026-02-10T09:30:00.000Z
-                </div>
-
-                <div class="text-secondary small mt-2">
-                    Assignee: dsmith (avatar: https://cdn.example.com/avatars/dsmith.png)
-                </div>
-                <div class="text-secondary small">
-                    Confirmed by: ceo (avatar: https://cdn.example.com/avatars/ceo.png)
-                </div>
-            </div>
-        </div>
-
+        {% endfor %}
     </div>
 
 </div>
-
 {% endblock %}

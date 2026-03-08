@@ -6,7 +6,7 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from litestar.contrib.jinja import JinjaTemplateEngine
 
-from app.config import user_roles
+from app.config import user_roles, task_priority_name, task_priority_color
 
 
 def datetimeformat(date: str, format: str = "d MMMM y, HH:mm") -> str:
@@ -21,6 +21,20 @@ def userrole(role: int) -> str:
         return '---'
 
 
+def taskpriorityname(priority: int) -> str:
+    try:
+        return task_priority_name[priority]
+    except KeyError:
+        return '---'
+
+
+def taskprioritycolor(priority: int) -> str:
+    try:
+        return task_priority_color[priority]
+    except KeyError:
+        return '#000000'
+
+
 def get_jinja_engine(
     directory: Path | list[Path]
 ) -> JinjaTemplateEngine:
@@ -30,6 +44,8 @@ def get_jinja_engine(
     )
     jinja_env.filters["datetimeformat"] = datetimeformat
     jinja_env.filters["userrole"] = userrole
+    jinja_env.filters["taskpriorityname"] = taskpriorityname
+    jinja_env.filters["taskprioritycolor"] = taskprioritycolor
     return JinjaTemplateEngine(
         engine_instance=jinja_env
     )

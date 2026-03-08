@@ -5,7 +5,7 @@
 
 from litestar import Request, get
 from litestar.exceptions.http_exceptions import NotFoundException
-from litestar.response import Redirect, Template
+from litestar.response import Redirect, Template, Response
 
 from app.config import HttpClient, CoreConfig
 from app.handlers.controller import BaseController, HttpResponseStatuses
@@ -30,7 +30,24 @@ class CoreController(BaseController[CoreConfig]):
         elif httpx_response.status_code == 200:
             return Template(
                 "boards/boards.html",
-                context={"boards": httpx_response.json()['boards']}
+                context={"boards": httpx_response.json()}
             )
+        else:
+            raise NotFoundException
+
+    @get("/me-short", name="me-short")
+    async def me_short(
+        self, request: Request, http_client: HttpClient
+    ) -> Response | None:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path='/user/me-short'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return None
+        elif httpx_response.status_code == 200:
+            return httpx_response.json()
         else:
             raise NotFoundException

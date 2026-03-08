@@ -56,3 +56,23 @@ class UserController(BaseController[UserConfig]):
             )
         else:
             raise NotFoundException
+
+    @get("/me", name="user_me")
+    async def user_me(
+        self, request: Request, http_client: HttpClient
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path='/user/me'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        elif httpx_response.status_code == 200:
+            return Template(
+                "users/user.html",
+                context={"user": httpx_response.json()}
+            )
+        else:
+            raise NotFoundException
