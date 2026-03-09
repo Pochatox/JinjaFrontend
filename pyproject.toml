@@ -11,6 +11,7 @@ litestar = { extras = ["jinja"], version = "^2.20.0" }
 uvicorn = "^0.34.0"
 pydantic = "^2.12.5"
 babel = "^2.18.0"
+pyjwt = "^2.11.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -69,6 +70,7 @@ ignore = [
     "WPS111",
     "WPS201",
     "WPS202",
+    "WPS204",
     "WPS210",
     "WPS214",
     "WPS217",

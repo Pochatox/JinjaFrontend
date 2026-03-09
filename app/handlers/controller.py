@@ -2,17 +2,18 @@
 # pyright: reportReturnType=false
 # pyright: reportArgumentType=false
 # pyright: reportAttributeAccessIssue=false
-
+import jwt
 from enum import Enum
 from typing import Generic, Sequence, TypeVar
-from typing_extensions import Literal
 
 from httpx import Response as Httpx_Response
 from litestar import Request
 from litestar.controller import Controller
+from litestar.exceptions.http_exceptions import HTTPException
 from litestar.response import Response
+from typing_extensions import Literal
 
-from app.config import BaseConfig
+from app.config import BaseConfig, HttpClient
 from app.http.clients import BaseAsyncHTTPClient
 from app.types import (HeadersType, HttpClientRedirect, HttpContent,
                        HttpCookies, HttpParams, Sentinel)
@@ -66,6 +67,34 @@ class BaseController(Controller, Generic[ConfigType]):
         else:
             return (HttpResponseStatuses.RESPONSE, httpx_response)
 
+    async def get_user_role(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> int:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/board/{board_id}/role'
+        )
+        if httpx_response.status_code == 200:
+            return int(httpx_response.text)
+        else:
+            raise HTTPException
+
+    async def get_user_role_by_task(
+        self, request: Request, http_client: HttpClient, task_id: str
+    ) -> int:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/board/{task_id}/role-by-task'
+        )
+        if httpx_response.status_code == 200:
+            return int(httpx_response.text)
+        else:
+            raise HTTPException
+
     def set_tokens(
         self, response: Response, httpx_response: Httpx_Response
     ) -> Response:
@@ -91,3 +120,8 @@ class BaseController(Controller, Generic[ConfigType]):
 
     def get_error(self, httpx_response: Httpx_Response) -> str:
         return httpx_response.json()['extra']['message']
+
+    def get_user_id(self, request: Request) -> str:
+        return jwt.decode(
+            request.cookies.get("access_token"), options={"verify_signature": False}
+        ).get("sub")

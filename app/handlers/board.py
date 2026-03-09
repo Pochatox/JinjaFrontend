@@ -3,7 +3,8 @@
 # pyright: reportAttributeAccessIssue=false
 
 from litestar import Request, get, post
-from litestar.exceptions.http_exceptions import HTTPException, NotFoundException
+from litestar.exceptions.http_exceptions import (HTTPException,
+                                                 NotFoundException)
 from litestar.response import Redirect, Template
 
 from app.config import BoardConfig, HttpClient
@@ -198,10 +199,210 @@ class BoardController(BaseController[BoardConfig]):
         if httpx_response.status_code == 200:
             response = Template(
                 "boards/task.html",
-                context={"task": httpx_response.json()}
+                context={
+                    "task": httpx_response.json(),
+                    "user_id": self.get_user_id(request),
+                    "user_role": await self.get_user_role_by_task(
+                        request, http_client, task_id
+                    )
+                }
             )
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
             return response
         else:
             raise NotFoundException
+
+    @get('/{board_id:str}/not-assigned-tasks', name='get_not_assigned_tasks')
+    async def get_not_assigned_tasks(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/board/{board_id}/not-assigned-tasks'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        if httpx_response.status_code == 200:
+            response = Template(
+                "boards/tasks.html",
+                context={
+                    "state": "not_assigned",
+                    "board_id": board_id,
+                    "tasks": httpx_response.json()
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            raise NotFoundException
+
+    @get('/{board_id:str}/confirmed-tasks', name='get_confirmed_tasks')
+    async def get_confirmed_tasks(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/board/{board_id}/confirmed-tasks'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        if httpx_response.status_code == 200:
+            response = Template(
+                "boards/tasks.html",
+                context={
+                    "state": "confirmed",
+                    "board_id": board_id,
+                    "tasks": httpx_response.json()
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            raise NotFoundException
+
+    @post('/task-assignee/{task_id:str}', name='task_assignee')
+    async def task_assignee(
+        self, request: Request, http_client: HttpClient, task_id: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='patch',
+            path='/task/assignee',
+            json={
+                "task_id": task_id
+            },
+            expected_error_statuses=[409, 422]
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+
+        if httpx_response.status_code == 200:
+            response = Redirect(f'/task/{task_id}')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        elif httpx_response.status_code == 409:
+            http_status409, httpx_response409 = await self.request(
+                http_client=http_client,
+                request=request,
+                method='get',
+                path=f'/task/{task_id}'
+            )
+            response = Template(
+                "boards/task.html",
+                context={
+                    "task": httpx_response409.json(),
+                    "user_role": await self.get_user_role_by_task(
+                        request, http_client, task_id
+                    ),
+                    "error": 409
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        elif httpx_response.status_code == 422:
+            http_status422, httpx_response422 = await self.request(
+                http_client=http_client,
+                request=request,
+                method='get',
+                path=f'/task/{task_id}'
+            )
+            response = Template(
+                "boards/task.html",
+                context={
+                    "task": httpx_response422.json(),
+                    "user_role": await self.get_user_role_by_task(
+                        request, http_client, task_id
+                    ),
+                    "error": 422
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            raise HTTPException
+
+    @post('/task-confirm/{task_id:str}', name='task_confirm')
+    async def task_confirm(
+        self, request: Request, http_client: HttpClient, task_id: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='patch',
+            path='/task/confirm',
+            json={
+                "task_id": task_id
+            },
+            expected_error_statuses=[409]
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+
+        if httpx_response.status_code == 200:
+            response = Redirect(f'/task/{task_id}')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        elif httpx_response.status_code == 409:
+            http_status409, httpx_response409 = await self.request(
+                http_client=http_client,
+                request=request,
+                method='get',
+                path=f'/task/{task_id}'
+            )
+            response = Template(
+                "boards/task.html",
+                context={
+                    "task": httpx_response409.json(),
+                    "error": 409,
+                    "user_role": await self.get_user_role_by_task(
+                        request, http_client, task_id
+                    )
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        else:
+            raise HTTPException
+
+    @post('/task/{task_id:str}/move-to/{column_position:int}', name='task_move_to')
+    async def task_move_to(
+        self, request: Request, http_client: HttpClient, task_id: str,
+        column_position: int
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='patch',
+            path='/task/move',
+            json={
+                "task_id": task_id,
+                "move_to": column_position
+            }
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+
+        if httpx_response.status_code == 200:
+            response = Redirect(f'/task/{task_id}')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            raise HTTPException

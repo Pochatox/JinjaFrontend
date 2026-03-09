@@ -30,7 +30,7 @@
                 </div>
             </div>
             {% else %}
-            <div style="color:#f2a8a8; font-size:0.9rem;">Задачу ещё никто не принял</div>
+            <div style="color:#f2a8a8; font-size:0.9rem;">Задачу никто не принял</div>
             {% endif %}
 
             {% if task.confirmed_by %}
@@ -49,50 +49,92 @@
                 </div>
             </div>
             {% else %}
-            <div style="color:#f2a8a8; font-size:0.9rem; margin-left:auto;">Задача ещё не одобрена</div>
+            <div style="color:#f2a8a8; font-size:0.9rem; margin-left:auto;">Задача не одобрена</div>
             {% endif %}
         </div>
 
         <!-- Task title & description -->
         <h4 style="color:#e6e9ef;">{{ task.name }}</h4>
-        <p style="color:#cfd6e4;">{{ task.description }}</p>
+        {% if task.column%}
+        <h5 style="color:#606060;">{{ task.column.name }} | позиция колонки: {{ task.column.position }}</h4>
+            {% endif %}
+            <p style="color:#cfd6e4;">{{ task.description }}</p>
 
-        <!-- Priority -->
-        <!-- Priority -->
-        <div class="mb-2" style="color:#e6e9ef;">
-            Приоритет: <strong style="color: {{ task.priority | taskprioritycolor }};">{{ task.priority |
-                taskpriorityname }}</strong>
-        </div>
+            <!-- Priority -->
+            <!-- Priority -->
+            <div class="mb-2" style="color:#e6e9ef;">
+                Приоритет: <strong style="color: {{ task.priority | taskprioritycolor }};">{{ task.priority |
+                    taskpriorityname }}</strong>
+            </div>
 
-        <!-- Labels -->
-        {% if task.labels %}
-        <div class="mb-2 d-flex flex-wrap gap-2">
-            {% for label in task.labels %}
-            <span
-                style="background-color:{{ label.color }}; color:#fff; padding:0.25rem 0.6rem; border-radius:0.5rem; font-size:0.8rem; font-weight:500;">
-                {{ label.name }}
-            </span>
-            {% endfor %}
-        </div>
-        {% endif %}
+            <!-- Labels -->
+            {% if task.labels %}
+            <div class="mb-2 d-flex flex-wrap gap-2">
+                {% for label in task.labels %}
+                <span
+                    style="background-color:{{ label.color }}; color:#fff; padding:0.25rem 0.6rem; border-radius:0.5rem; font-size:0.8rem; font-weight:500;">
+                    {{ label.name }}
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
 
-        <!-- Created at -->
-        <div style="color:#9aa4b2; font-size:0.9rem;">
-            Создана: {{ task.created_at | datetimeformat }}
-        </div>
+            <!-- Created at -->
+            <div style="color:#9aa4b2; font-size:0.9rem;">
+                Создана: {{ task.created_at | datetimeformat }}
+            </div>
 
-        <!-- Buttons -->
-        <div class="d-flex justify-content-end gap-2 mt-3">
-            <button class="form-control" style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;"
-                onclick="moveTask('prev')">
-                ← В предыдущую колонку
-            </button>
-            <button class="form-control" style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;"
-                onclick="moveTask('next')">
-                В следующую колонку →
-            </button>
-        </div>
+            <!-- Buttons -->
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                {% if task.column and task.assignee and task.assignee.id == user_id and task.column.position > 1 %}
+                <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position - 1 }}">
+                    <button class="form-control"
+                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+                        ← В предыдущую колонку
+                    </button>
+                </form>
+                {% endif %}
 
+                {% if task.assignee and task.assignee.id == user_id and not task.is_in_last_column %}
+                <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position + 1 }}">
+                    <button class="form-control"
+                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+                        В следующую колонку →
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            <div class="d-flex flex-column gap-2 mt-3">
+                {% if not task.assignee and not task.confirmed_by and user_role |
+                issufficientrole("min_assignee_task_role") %}
+                <form method="post" action="/board/task-assignee/{{ task.id }}">
+                    <button type="submit" class="w-100 btn"
+                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
+                        Взять задачу в работу
+                    </button>
+                </form>
+                {% endif %}
+
+                {% if not task.confirmed_by and user_role | issufficientrole("min_confirm_task_role") %}
+                <form method="post" action="/board/task-confirm/{{ task.id }}">
+                    <button type="submit" class="w-100 btn"
+                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
+                        Закрыть задачу
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            {% if error and error == 409 %}
+            <div style="color:#f2a8a8; font-size:0.85rem; margin-top:-0.25rem;">
+                Достигнут WIP лимит
+            </div>
+            {% elif error and error == 422 %}
+            <div style="color:#f2a8a8; font-size:0.85rem; margin-top:-0.25rem;">
+                Отсутствует первая колонка
+            </div>
+            {% endif %}
     </div>
 </div>
 {% endblock %}

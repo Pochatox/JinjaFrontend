@@ -61,7 +61,17 @@
             openForm.classList.toggle('d-none');
         }
     </script>
+    <div class="d-flex gap-2 mb-3">
+        <a href="/board/{{ board.id }}/not-assigned-tasks" class="btn flex-fill"
+            style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268;">
+            Не взятые задачи
+        </a>
 
+        <a href="/board/{{ board.id }}/confirmed-tasks" class="btn flex-fill"
+            style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268;">
+            Закрытые задачи
+        </a>
+    </div>
     <div id="addLabelForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
         <form method="post" action="/board/label" autocomplete="off">
             <input type="hidden" name="label_board_id" value="{{ board.id }}">

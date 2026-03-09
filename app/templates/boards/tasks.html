@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Задачи | Pochatox{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        {% if state == "not_assigned" %}
+        <h3 style="color:#e6e9ef;" class="mb-0">Не взятые в работу задачи:</h3>
+        {% elif state == "confirmed" %}
+        <h3 style="color:#e6e9ef;" class="mb-0">Закрытые задачи:</h3>
+        {% endif %}
+
+        <a href="/board/{{ board_id }}" class="btn"
+            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+            Вернуться на доску
+        </a>
+    </div>
+
+    {% if tasks %}
+    <div class="d-flex flex-column gap-3">
+
+        {% for task in tasks %}
+        <a href="/board/task/{{ task.id }}" style="text-decoration:none;">
+            <div class="card p-4 shadow position-relative"
+                style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem; cursor:pointer;">
+
+
+                <!-- Assignee / Confirmed -->
+                <div class="d-flex align-items-center mb-3 gap-3">
+
+                    {% if task.assignee %}
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="/static/avatars/{{ task.assignee.avatar }}"
+                            style="width:42px; height:42px; border-radius:50%; object-fit:cover;">
+                        <div style="color:#9aa4b2;">
+                            @{{ task.assignee.username }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if task.confirmed_by %}
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <img src="/static/avatars/{{ task.confirmed_by.avatar }}"
+                            style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                        <div style="color:#9aa4b2; font-size:0.85rem;">
+                            подтверждено @{{ task.confirmed_by.username }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                <!-- Task -->
+                <h5 style="color:#e6e9ef;">{{ task.name }}</h5>
+                <p style="color:#cfd6e4;">{{ task.description }}</p>
+
+                <!-- Priority -->
+                <div class="mb-2" style="color:#e6e9ef;">
+                    Приоритет:
+                    <strong style="color: {{ task.priority | taskprioritycolor }};">
+                        {{ task.priority | taskpriorityname }}
+                    </strong>
+                </div>
+
+                <!-- Labels -->
+                {% if task.labels %}
+                <div class="mb-2 d-flex flex-wrap gap-2">
+                    {% for label in task.labels %}
+                    <span style="background-color:{{ label.color }};
+                               color:#fff;
+                               padding:0.25rem 0.6rem;
+                               border-radius:0.5rem;
+                               font-size:0.8rem;
+                               font-weight:500;">
+                        {{ label.name }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Created -->
+                <div style="color:#9aa4b2; font-size:0.9rem;">
+                    Создана: {{ task.created_at | datetimeformat }}
+                </div>
+
+            </div>
+        </a>
+        {% endfor %}
+
+    </div>
+    {% else %}
+    <div style="color:#9aa4b2;">Задач нет</div>
+    {% endif %}
+
+</div>
+{% endblock %}
