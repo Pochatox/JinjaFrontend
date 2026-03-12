@@ -31,7 +31,12 @@ class BoardController(BaseController[BoardConfig]):
         if httpx_response.status_code == 200:
             response = Template(
                 "boards/board.html",
-                context={"board": httpx_response.json()}
+                context={
+                    "board": httpx_response.json(),
+                    "user_role": await self.get_user_role(
+                        request, http_client, board_id
+                    )
+                }
             )
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
@@ -39,7 +44,7 @@ class BoardController(BaseController[BoardConfig]):
         else:
             raise NotFoundException
 
-    @get('/column/{board_id:str}', name='get_column')
+    @get('/column/{column_id:str}', name='get_column')
     async def get_column(
         self, request: Request, http_client: HttpClient, column_id: str
     ) -> Template | Redirect:
@@ -47,7 +52,7 @@ class BoardController(BaseController[BoardConfig]):
             http_client=http_client,
             request=request,
             method='get',
-            path=f'/column/{column_id}',
+            path=f'/board/column/{column_id}',
             expected_error_statuses=[422]
         )
         if http_status == HttpResponseStatuses.REDIRECT:
@@ -96,13 +101,14 @@ class BoardController(BaseController[BoardConfig]):
         self, request: Request, http_client: HttpClient
     ) -> Template | Redirect:
         form = await request.form()
+        board_id = form.get("task_board_id")
         http_status, httpx_response = await self.request(
             http_client=http_client,
             request=request,
             method='post',
             path='/task',
             json={
-                "board_id": form.get("task_board_id"),
+                "board_id": board_id,
                 "name": form.get("task_name"),
                 "description": form.get("task_description", "").strip(),
                 "priority": form.get("task_priority"),
@@ -117,7 +123,13 @@ class BoardController(BaseController[BoardConfig]):
         if httpx_response.status_code == 201:
             response = Template(
                 "boards/task.html",
-                context={"task": httpx_response.json()}
+                context={
+                    "task": httpx_response.json(),
+                    "user_id": self.get_user_id(request),
+                    "user_role": await self.get_user_role(
+                        request, http_client, board_id
+                    )
+                }
             )
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
@@ -285,7 +297,7 @@ class BoardController(BaseController[BoardConfig]):
             return httpx_response
 
         if httpx_response.status_code == 200:
-            response = Redirect(f'/task/{task_id}')
+            response = Redirect(f'/board/task/{task_id}')
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
             return response
@@ -352,7 +364,7 @@ class BoardController(BaseController[BoardConfig]):
             return httpx_response
 
         if httpx_response.status_code == 200:
-            response = Redirect(f'/task/{task_id}')
+            response = Redirect(f'/board/task/{task_id}')
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
             return response
@@ -394,15 +406,63 @@ class BoardController(BaseController[BoardConfig]):
             json={
                 "task_id": task_id,
                 "move_to": column_position
-            }
+            },
+            expected_error_statuses=[409]
         )
         if http_status == HttpResponseStatuses.REDIRECT:
             return httpx_response
 
         if httpx_response.status_code == 200:
-            response = Redirect(f'/task/{task_id}')
+            response = Redirect(f'/board/task/{task_id}')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        elif httpx_response.status_code == 409:
+            http_status409, httpx_response409 = await self.request(
+                http_client=http_client,
+                request=request,
+                method='get',
+                path=f'/task/{task_id}'
+            )
+            response = Template(
+                "boards/task.html",
+                context={
+                    "task": httpx_response409.json(),
+                    "error": 409,
+                    "user_role": await self.get_user_role_by_task(
+                        request, http_client, task_id
+                    )
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        else:
+            raise HTTPException
+
+    @get('/{board_id:str}/users-list', name='get_users-list')
+    async def get_users_list(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/board/{board_id}/users-list'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        if httpx_response.status_code == 200:
+            response = Template(
+                "boards/userslist.html",
+                context={
+                    "board_users": httpx_response.json()
+                }
+            )
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
             return response
         else:
-            raise HTTPException
+            raise NotFoundException

@@ -8,6 +8,8 @@
     <div class="mb-4 p-4 rounded shadow-sm" style="background:#232834; border:1px solid #3a4154;">
         <div class="d-flex justify-content-between align-items-start">
             <div>
+                <div class="mb-1 text-secondary">Ваша роль: <span style="color:#808dd2;">{{ user_role | userrole
+                        }}</span></div>
                 <h3 class="mb-1 text-light">{{ board.name }}</h3>
                 <div class="text-secondary mb-2">
                     Board ID: {{ board.id }}
@@ -35,18 +37,24 @@
         </div>
     </div>
     <div class="d-flex justify-content-end gap-2 mb-3">
+        {% if user_role | issufficientrole("min_create_column_role") %}
         <button class="form-control" onclick="toggleForm('addColumnForm', ['addTaskForm','addLabelForm'])"
             style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
             Добавить колонку
         </button>
+        {% endif %}
+        {% if user_role | issufficientrole("min_create_task_role") %}
         <button class="form-control" onclick="toggleForm('addTaskForm', ['addColumnForm','addLabelForm'])"
             style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
             Добавить задачу
         </button>
+        {% endif %}
+        {% if user_role | issufficientrole("min_confirm_task_role") %}
         <button class="form-control" onclick="toggleForm('addLabelForm', ['addColumnForm','addTaskForm'])"
             style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
             Добавить метку
         </button>
+        {% endif %}
     </div>
 
     <script>
@@ -70,6 +78,11 @@
         <a href="/board/{{ board.id }}/confirmed-tasks" class="btn flex-fill"
             style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268;">
             Закрытые задачи
+        </a>
+
+        <a href="/board/{{ board.id }}/users-list" class="btn flex-fill"
+            style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268;">
+            Список участников
         </a>
     </div>
     <div id="addLabelForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
@@ -184,7 +197,7 @@
                 <label for="task_name" class="form-label text-light">Название задачи</label>
                 <input id="task_name" type="text" name="task_name" class="form-control"
                     style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;" required
-                    minlength="2" maxlength="24">
+                    minlength="3" maxlength="24">
             </div>
 
             <div class="mb-3">
@@ -269,7 +282,7 @@
             </script>
 
             <div class="mb-3">
-                <label for="task_labels" class="form-label text-light">Метки</label>
+                <label class="form-label text-light">Метки</label>
                 <div class="d-flex flex-wrap gap-5"
                     style="background:#2a2f3f; border:1px solid #4a5268; padding:0.4rem; border-radius:6px;">
                     {% for label in board.labels %}
@@ -310,6 +323,7 @@
             return true;
         }
     </script>
+    <hr>
     <div class="d-flex flex-wrap gap-2 mb-3">
         {% for label in board.labels %}
         <span class="px-2 py-1 small" style="
@@ -324,47 +338,57 @@
         </span>
         {% endfor %}
     </div>
-    <div class="d-flex gap-4 overflow-auto">
+    <hr>
+    <div class="d-flex gap-4 overflow-auto horizontal-scroll">
         {% for column in board.columns %}
-        <div class="p-3 rounded shadow-sm" style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
+        <div class="p-3 rounded shadow-sm position-relative"
+            style="min-width:320px; background:#1f2430; border:1px solid #3a4154;">
+
+
             <div class="mb-3">
-                <h5 class="text-light mb-1">{{ column.name }}</h5>
-                <div class="text-secondary small">Position: {{ column.position }}</div>
-                <div class="text-secondary small">WIP limit: {{ column.wip }}</div>
+                <h5 class="mb-1">
+                    <a href="/board/column/{{ column.id }}" style="color:#ffffff; text-decoration:underline;">
+                        {{ column.name }}
+                    </a>
+                </h5>
+                <div class="text-secondary small">Позиция: {{ column.position }}</div>
+                <div class="text-secondary small">WIP лимит: {{ column.wip }}</div>
             </div>
 
             {% for task in column.tasks %}
-            <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
-                <h6 class="text-light">{{ task.name }}</h6>
-                <div class="text-secondary small mb-2">Priority: {{ task.priority }}</div>
-                <p class="text-secondary small">{{ task.description }}</p>
+            <a href="/board/task/{{ task.id }}"
+                style="text-decoration:none; display:block; position:relative; z-index:2;">
+                <div class="card p-3 mb-3" style="background:#2a2f3f; border:1px solid #4a5268;">
+                    <h6 class="text-light">{{ task.name }}</h6>
+                    <div class="mb-2" style="color:#e6e9ef;">
+                        Приоритет: <strong style="color: {{ task.priority | taskprioritycolor }};">{{ task.priority |
+                            taskpriorityname }}</strong>
+                    </div>
+                    <p class="text-secondary small">{{ task.description }}</p>
 
-                <div class="mb-2">
-                    {% for label in task.labels %}
-                    <span class="badge" style="background:{{ label.color }};">{{ label.name }}</span>
-                    {% endfor %}
-                </div>
+                    <div class="mb-2">
+                        {% for label in task.labels %}
+                        <span class="badge" style="background:{{ label.color }};">{{ label.name }}</span>
+                        {% endfor %}
+                    </div>
 
-                <div class="text-secondary small">Created at: {{ task.created_at | datetimeformat }}</div>
+                    <div class="text-secondary small">
+                        Создана: {{ task.created_at | datetimeformat }}
+                    </div>
 
-                <div class="text-secondary small mt-2">
-                    Assignee:
-                    {% if task.assignee %}
-                    {{ task.assignee.username }}
-                    <img src="/static/avatars/{{ task.assignee.avatar }}" alt="avatar"
-                        style="width:32px; height:32px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
-                    {% else %}—{% endif %}
+                    <div class="text-secondary small mt-2">
+                        Принял:
+                        {% if task.assignee %}
+                        @{{ task.assignee.username }}
+                        <img src="/static/avatars/{{ task.assignee.avatar }}" alt="avatar"
+                            style="width:32px; height:32px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+                        {% else %}—{% endif %}
+                    </div>
+
                 </div>
-                <div class="text-secondary small">
-                    Confirmed by:
-                    {% if task.confirmed_by %}
-                    {{ task.confirmed_by.username }}
-                    <img src="/static/avatars/{{ task.confirmed_by.avatar }}" alt="avatar"
-                        style="width:32px; height:32px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
-                    {% else %}—{% endif %}
-                </div>
-            </div>
+            </a>
             {% endfor %}
+
         </div>
         {% endfor %}
     </div>

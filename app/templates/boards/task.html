@@ -16,40 +16,44 @@
         <div class="d-flex align-items-center mb-4 mt-3 gap-4">
             {% if task.assignee %}
             <!-- Assignee -->
-            <div class="d-flex align-items-center gap-2">
-                <div class="avatar"
-                    style="width:60px; height:60px; border-radius:50%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
-                    <img src="/static/avatars/{{ task.assignee.avatar }}" alt="assignee-avatar"
-                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+            <a href="/user/id/{{ task.assignee.id }}" style="text-decoration:none; color:inherit;">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar"
+                        style="width:60px; height:60px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
+                        <img src="/static/avatars/{{ task.assignee.avatar }}" alt="assignee-avatar"
+                            style="width:100%; height:100%; border-radius:20%; object-fit:cover;">
+                    </div>
+                    <div>
+                        <div style="color:#e6e9ef; font-weight:500;">{{ task.assignee.first_name }} {{
+                            task.assignee.last_name }}</div>
+                        <div style="color:#9aa4b2;">@{{ task.assignee.username }}</div>
+                        <div style="color:#6fcf97; font-size:0.75rem;">Принял</div>
+                    </div>
                 </div>
-                <div>
-                    <div style="color:#e6e9ef; font-weight:500;">{{ task.assignee.first_name }} {{
-                        task.assignee.last_name }}</div>
-                    <div style="color:#9aa4b2;">@{{ task.assignee.username }}</div>
-                    <div style="color:#6fcf97; font-size:0.75rem;">Assignee</div>
-                </div>
-            </div>
+            </a>
             {% else %}
             <div style="color:#f2a8a8; font-size:0.9rem;">Задачу никто не принял</div>
             {% endif %}
 
             {% if task.confirmed_by %}
             <!-- Confirmed_by -->
-            <div class="d-flex align-items-center gap-2 ms-auto">
-                <div class="avatar"
-                    style="width:60px; height:60px; border-radius:50%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
-                    <img src="/static/avatars/{{ task.confirmed_by.avatar }}" alt="confirmed-avatar"
-                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+            <a href="/user/id/{{ task.confirmed_by.id }}" style="text-decoration:none; color:inherit;" class="ms-auto">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar"
+                        style="width:60px; height:60px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
+                        <img src="/static/avatars/{{ task.confirmed_by.avatar }}" alt="confirmed-avatar"
+                            style="width:100%; height:100%; border-radius:20%; object-fit:cover;">
+                    </div>
+                    <div>
+                        <div style="color:#e6e9ef; font-weight:500;">{{ task.confirmed_by.first_name }} {{
+                            task.confirmed_by.last_name }}</div>
+                        <div style="color:#9aa4b2;">@{{ task.confirmed_by.username }}</div>
+                        <div style="color:#f2a8a8; font-size:0.75rem;">Закрыл</div>
+                    </div>
                 </div>
-                <div>
-                    <div style="color:#e6e9ef; font-weight:500;">{{ task.confirmed_by.first_name }} {{
-                        task.confirmed_by.last_name }}</div>
-                    <div style="color:#9aa4b2;">@{{ task.confirmed_by.username }}</div>
-                    <div style="color:#f2a8a8; font-size:0.75rem;">Confirmed by</div>
-                </div>
-            </div>
+            </a>
             {% else %}
-            <div style="color:#f2a8a8; font-size:0.9rem; margin-left:auto;">Задача не одобрена</div>
+            <div style="color:#f2a8a8; font-size:0.9rem; margin-left:auto;">Задача не закрыта</div>
             {% endif %}
         </div>
 
@@ -79,12 +83,10 @@
             </div>
             {% endif %}
 
-            <!-- Created at -->
             <div style="color:#9aa4b2; font-size:0.9rem;">
                 Создана: {{ task.created_at | datetimeformat }}
             </div>
 
-            <!-- Buttons -->
             <div class="d-flex justify-content-end gap-2 mt-3">
                 {% if task.column and task.assignee and task.assignee.id == user_id and task.column.position > 1 %}
                 <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position - 1 }}">
@@ -95,7 +97,8 @@
                 </form>
                 {% endif %}
 
-                {% if task.assignee and task.assignee.id == user_id and not task.is_in_last_column %}
+                {% if task.assignee and not task.confirmed_by and task.assignee.id == user_id and not
+                task.is_in_last_column %}
                 <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position + 1 }}">
                     <button class="form-control"
                         style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
@@ -110,7 +113,7 @@
                 issufficientrole("min_assignee_task_role") %}
                 <form method="post" action="/board/task-assignee/{{ task.id }}">
                     <button type="submit" class="w-100 btn"
-                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
+                        style="background-color:#479e47; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
                         Взять задачу в работу
                     </button>
                 </form>
@@ -119,20 +122,37 @@
                 {% if not task.confirmed_by and user_role | issufficientrole("min_confirm_task_role") %}
                 <form method="post" action="/board/task-confirm/{{ task.id }}">
                     <button type="submit" class="w-100 btn"
-                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
+                        style="background-color:#742525; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
                         Закрыть задачу
                     </button>
                 </form>
                 {% endif %}
             </div>
-
-            {% if error and error == 409 %}
-            <div style="color:#f2a8a8; font-size:0.85rem; margin-top:-0.25rem;">
-                Достигнут WIP лимит
+            <div class="mt-3">
+                <a href="/board/{{ task.board_id }}" class="btn w-100"
+                    style="background-color:#343c74; color:#e6e9ef; padding:0.6rem; font-weight:500; text-align:center;">
+                    Вернуться на доску
+                </a>
             </div>
-            {% elif error and error == 422 %}
-            <div style="color:#f2a8a8; font-size:0.85rem; margin-top:-0.25rem;">
+
+            {% if error %}
+            <div style="
+    background-color:#3a2f3f;
+    color:#f2a8a8;
+    font-size:0.85rem;
+    padding:0.5rem 0.75rem;
+    border-radius:0.5rem;
+    margin-top:0.5rem;
+    border:1px solid #4a5268;
+    text-align:center;
+">
+                {% if error == 409 %}
+                Достигнут WIP лимит
+                {% elif error == 422 %}
                 Отсутствует первая колонка
+                {% else %}
+                Произошла ошибка
+                {% endif %}
             </div>
             {% endif %}
     </div>

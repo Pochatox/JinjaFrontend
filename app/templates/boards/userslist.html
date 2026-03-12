@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Участники | {{ board_users.board.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-light mb-4">Участники доски: {{ board_users.board.name }}</h2>
+            <a href="/board/{{ board_users.board.id }}" class="btn"
+                style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+                Вернуться на доску
+            </a>
+    </div>
+    <div class="row g-3 mb-4">
+        {% for user in board_users.users %}
+        <div class="col-md-6 col-lg-4">
+            <a href="/user/id/{{ user.id }}" style="text-decoration:none;">
+                <div class="card p-3" style="background:#2a2f3f; border:1px solid #4a5268; border-radius:0.6rem;">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="/static/avatars/{{ user.avatar }}" alt="{{ user.username }}"
+                            style="width:60px; height:60px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+                        <div>
+                            <div class="fw-semibold text-light">{{ user.first_name }} {{ user.last_name }}</div>
+                            <div class="fw-semibold text-secondary">@{{ user.username }}</div>
+                            <div class="small" style="color:#e6e9ef;">Email: {{ user.email }}</div>
+                            <div class="small" style="color:{{ " #6fcf97" if user.is_active else "#f2a8a8" }};">
+                                Активен: {{ "Да" if user.is_active else "Нет" }}
+                            </div>
+                            <div class="small" style="color:#808dd2;">Роль: {{ user.role | userrole}}</div>
+                            <div class="text-secondary small">Создан: {{ user.created_at | datetimeformat }}</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
