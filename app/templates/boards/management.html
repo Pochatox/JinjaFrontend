@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Управление командой | Pochatox{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:800px;">
+
+    <h3 style="color:#e6e9ef;" class="mb-4">
+        Управление командой: {{ board_users.board.name }}
+    </h3>
+    <div class="mt-3">
+        <a href="/board/{{ board_users.board.id }}" class="btn w-100"
+            style="background-color:#343c74; color:#e6e9ef; padding:0.6rem; font-weight:500; text-align:center;">
+            Вернуться на доску
+        </a>
+    </div>
+    <br>
+
+
+    {% if user_role | issufficientrole("min_invite_role") %}
+    <div class="mb-4 p-4 shadow" style="background:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+
+        <h5 style="color:#e6e9ef;" class="mb-3">Пригласить участника</h5>
+
+        <form method="post" action="/board/invite-user">
+
+            <input type="hidden" name="board_id" value="{{ board_users.board.id }}">
+
+            <div class="input-group">
+                <span class="input-group-text" style="background:#2a2f3f; color:#9aa4b2; border:1px solid #4a5268;">
+                    @
+                </span>
+
+                <input name="invited_username" required placeholder="username" class="form-control"
+                    style="background:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;">
+            </div>
+
+            <button type="submit" class="btn w-100 mt-3"
+                style="background:#3a8f66; color:#e6e9ef; border:1px solid #4a5268;">
+                Пригласить
+            </button>
+
+        </form>
+
+    </div>
+    {% endif %}
+
+    {% if user_role | issufficientrole("min_delete_user_role") %}
+    <div class="mb-4 p-4 shadow" style="background:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+
+        <h5 style="color:#e6e9ef;" class="mb-3">Удалить участника</h5>
+
+        <select id="removeUserSelect" class="form-control mb-3"
+            style="background:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;">
+
+            <option value="">Выберите пользователя</option>
+
+            {% for user in board_users.users %}
+            <option value="{{ user.id }}">
+                {{ user.first_name }} {{ user.last_name }} (@{{ user.username }})
+            </option>
+            {% endfor %}
+
+        </select>
+
+        <button class="btn w-100" onclick="confirmRemove()"
+            style="background:#742525; color:#e6e9ef; border:1px solid #4a5268;">
+            Удалить пользователя
+        </button>
+
+    </div>
+    {% endif %}
+
+
+    {% if user_role | issufficientrole("min_create_maintainer_role") %}
+    <div class="mb-4 p-4 shadow" style="background:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+
+        <h5 style="color:#e6e9ef;" class="mb-3">Назначить лидера команды</h5>
+
+        <select id="roleUserSelect" class="form-control mb-3"
+            style="background:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;">
+
+            <option value="">Выберите пользователя</option>
+
+            {% for user in board_users.users %}
+            <option value="{{ user.id }}">
+                {{ user.first_name }} {{ user.last_name }} (@{{ user.username }})
+            </option>
+            {% endfor %}
+
+        </select>
+
+        <button class="btn w-100" onclick="confirmRole()"
+            style="background:#5d5281; color:#e6e9ef; border:1px solid #4a5268;">
+            Назначить лидером
+        </button>
+
+    </div>
+    {% endif %}
+
+
+    <!-- CONFIRM MODAL -->
+    <div id="confirmModal" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+align-items:center;
+justify-content:center;
+z-index:999;
+">
+
+        <div style="
+background:#232834;
+border:1px solid #3a4154;
+border-radius:0.8rem;
+padding:20px;
+width:300px;
+text-align:center;
+">
+
+            <div id="confirmText" style="color:#e6e9ef;" class="mb-3"></div>
+
+            <form id="confirmForm" method="post">
+
+                <input type="hidden" name="board_id" value="{{ board_users.board.id }}">
+                <input type="hidden" name="user_id" id="confirmUserId">
+
+                <button type="submit" class="btn w-100 mb-2" style="background:#5060b7; color:#e6e9ef;">
+                    Подтвердить
+                </button>
+
+                <button type="button" onclick="closeModal()" class="btn w-100"
+                    style="background:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268;">
+                    Отмена
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <script>
+
+        function confirmRemove() {
+
+            const userId = document.getElementById("removeUserSelect").value
+            if (!userId) return
+
+            document.getElementById("confirmForm").action = "/board/remove-user"
+            document.getElementById("confirmUserId").value = userId
+            document.getElementById("confirmText").innerText = "Удалить пользователя из команды?"
+            document.getElementById("confirmModal").style.display = "flex"
+
+        }
+
+        function confirmRole() {
+
+            const userId = document.getElementById("roleUserSelect").value
+            if (!userId) return
+
+            document.getElementById("confirmForm").action = "/board/make-maintainer"
+            document.getElementById("confirmUserId").value = userId
+            document.getElementById("confirmText").innerText = "Назначить пользователя лидером?"
+            document.getElementById("confirmModal").style.display = "flex"
+
+        }
+
+        function closeModal() {
+            document.getElementById("confirmModal").style.display = "none"
+        }
+
+    </script>
+
+    {% endblock %}

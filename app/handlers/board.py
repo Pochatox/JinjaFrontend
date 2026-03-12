@@ -442,7 +442,7 @@ class BoardController(BaseController[BoardConfig]):
         else:
             raise HTTPException
 
-    @get('/{board_id:str}/users-list', name='get_users-list')
+    @get('/{board_id:str}/users-list', name='get_users_list')
     async def get_users_list(
         self, request: Request, http_client: HttpClient, board_id: str
     ) -> Template | Redirect:
@@ -459,6 +459,87 @@ class BoardController(BaseController[BoardConfig]):
                 "boards/userslist.html",
                 context={
                     "board_users": httpx_response.json()
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            raise NotFoundException
+
+    @get('/{board_id:str}/task-transitions', name='get_task_transitions')
+    async def get_task_transitions(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/board/{board_id}/task-transitions'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        if httpx_response.status_code == 200:
+            response = Template(
+                "boards/tasktransitions.html",
+                context={
+                    "history": httpx_response.json(),
+                    "board_id": board_id
+                }
+            )
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            raise NotFoundException
+
+    @post('/task/{task_id:str}/comment', name='task_comment')
+    async def create_comment(
+        self, request: Request, http_client: HttpClient, task_id: str
+    ) -> Template | Redirect:
+        form = await request.form()
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='post',
+            path='/task/comment',
+            json={
+                "task_id": task_id,
+                "text": form.get('comment_text')
+            }
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+
+        if httpx_response.status_code == 201:
+            response = Redirect(f'/board/task/{task_id}')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        else:
+            raise HTTPException
+
+    @get('/{board_id:str}/management', name='get_board_management')
+    async def get_board_management(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/board/{board_id}/users-list'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        if httpx_response.status_code == 200:
+            response = Template(
+                "boards/management.html",
+                context={
+                    "board_users": httpx_response.json(),
+                    "user_role": await self.get_user_role(
+                        request, http_client, board_id
+                    )
                 }
             )
             if http_status == HttpResponseStatuses.NEW_TOKENS:

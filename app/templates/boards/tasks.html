@@ -4,15 +4,16 @@
 
 {% block content %}
 <div class="container py-5">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         {% if state == "not_assigned" %}
-        <h3 style="color:#e6e9ef;" class="mb-0">Не взятые в работу задачи:</h3>
+        <h3 style="color:#e6e9ef;" class="mb-0">Не взятые в работу задачи</h3>
         {% elif state == "confirmed" %}
-        <h3 style="color:#e6e9ef;" class="mb-0">Закрытые задачи:</h3>
+        <h3 style="color:#e6e9ef;" class="mb-0">Закрытые задачи</h3>
         {% endif %}
 
         <a href="/board/{{ board_id }}" class="btn"
-            style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+            style="background-color:#343c74; color:#e6e9ef; padding:0.55rem 0.9rem; font-weight:500;">
             Вернуться на доску
         </a>
     </div>
@@ -21,31 +22,59 @@
     <div class="d-flex flex-column gap-3">
 
         {% for task in tasks %}
-        <a href="/board/task/{{ task.id }}" style="text-decoration:none;">
+        <a href="/board/task/{{ task.id }}" style="text-decoration:none; color:inherit;">
             <div class="card p-4 shadow position-relative"
-                style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem; cursor:pointer;">
+                style="background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
 
+                <!-- Task ID -->
+                <div style="position:absolute; top:12px; right:16px; font-size:0.75rem; color:#6b7280;">
+                    {{ task.id }}
+                </div>
 
                 <!-- Assignee / Confirmed -->
-                <div class="d-flex align-items-center mb-3 gap-3">
+                <div class="d-flex align-items-center mb-3 mt-2 gap-4">
 
+                    <!-- Assignee -->
                     {% if task.assignee %}
                     <div class="d-flex align-items-center gap-2">
-                        <img src="/static/avatars/{{ task.assignee.avatar }}"
-                            style="width:42px; height:42px; border-radius:50%; object-fit:cover;">
-                        <div style="color:#9aa4b2;">
-                            @{{ task.assignee.username }}
+                        <div class="avatar"
+                            style="width:48px; height:48px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center;">
+                            <img src="/static/avatars/{{ task.assignee.avatar }}"
+                                style="width:100%; height:100%; border-radius:20%; object-fit:cover;">
                         </div>
+                        <div>
+                            <div style="color:#e6e9ef; font-weight:500;">
+                                {{ task.assignee.first_name }} {{ task.assignee.last_name }}
+                            </div>
+                            <div style="color:#9aa4b2;">@{{ task.assignee.username }}</div>
+                            <div style="color:#6fcf97; font-size:0.75rem;">Исполнитель</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="color:#f2a8a8; font-size:0.9rem;">
+                        Никто не принял задачу
                     </div>
                     {% endif %}
 
+                    <!-- Confirmed -->
                     {% if task.confirmed_by %}
                     <div class="d-flex align-items-center gap-2 ms-auto">
-                        <img src="/static/avatars/{{ task.confirmed_by.avatar }}"
-                            style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-                        <div style="color:#9aa4b2; font-size:0.85rem;">
-                            подтверждено @{{ task.confirmed_by.username }}
+                        <div class="avatar"
+                            style="width:48px; height:48px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center;">
+                            <img src="/static/avatars/{{ task.confirmed_by.avatar }}"
+                                style="width:100%; height:100%; border-radius:20%; object-fit:cover;">
                         </div>
+                        <div>
+                            <div style="color:#e6e9ef; font-weight:500;">
+                                {{ task.confirmed_by.first_name }} {{ task.confirmed_by.last_name }}
+                            </div>
+                            <div style="color:#9aa4b2;">@{{ task.confirmed_by.username }}</div>
+                            <div style="color:#f2a8a8; font-size:0.75rem;">Закрыл</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="ms-auto" style="color:#9aa4b2; font-size:0.9rem;">
+                        Задача не закрыта
                     </div>
                     {% endif %}
 
@@ -68,11 +97,11 @@
                 <div class="mb-2 d-flex flex-wrap gap-2">
                     {% for label in task.labels %}
                     <span style="background-color:{{ label.color }};
-                               color:#fff;
-                               padding:0.25rem 0.6rem;
-                               border-radius:0.5rem;
-                               font-size:0.8rem;
-                               font-weight:500;">
+                                 color:#fff;
+                                 padding:0.25rem 0.6rem;
+                                 border-radius:0.5rem;
+                                 font-size:0.8rem;
+                                 font-weight:500;">
                         {{ label.name }}
                     </span>
                     {% endfor %}

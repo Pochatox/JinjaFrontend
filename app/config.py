@@ -168,10 +168,13 @@ task_priority_color = {
 
 
 roles_access = {
+    'min_invite_role': 100,
+    'min_delete_user_role': 100,
     'min_create_column_role': 100,
+    'min_create_maintainer_role': 100,
     'min_create_task_role': 50,
-    'min_task_transitions_role': 50,
     'min_confirm_task_role': 50,
+    'min_task_transitions_role': 10,
     'min_create_label_role': 10,
     'min_check_task_role': 10,
     'min_assignee_task_role': 10

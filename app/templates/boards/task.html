@@ -15,11 +15,10 @@
         <!-- Assignee & Confirmed by -->
         <div class="d-flex align-items-center mb-4 mt-3 gap-4">
             {% if task.assignee %}
-            <!-- Assignee -->
             <a href="/user/id/{{ task.assignee.id }}" style="text-decoration:none; color:inherit;">
                 <div class="d-flex align-items-center gap-2">
                     <div class="avatar"
-                        style="width:60px; height:60px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
+                        style="width:60px; height:60px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center;">
                         <img src="/static/avatars/{{ task.assignee.avatar }}" alt="assignee-avatar"
                             style="width:100%; height:100%; border-radius:20%; object-fit:cover;">
                     </div>
@@ -36,11 +35,10 @@
             {% endif %}
 
             {% if task.confirmed_by %}
-            <!-- Confirmed_by -->
             <a href="/user/id/{{ task.confirmed_by.id }}" style="text-decoration:none; color:inherit;" class="ms-auto">
                 <div class="d-flex align-items-center gap-2">
                     <div class="avatar"
-                        style="width:60px; height:60px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center; color:#9aa4b2; font-size:0.8rem;">
+                        style="width:60px; height:60px; border-radius:20%; background-color:#2a2f3f; border:1px solid #4a5268; display:flex; align-items:center; justify-content:center;">
                         <img src="/static/avatars/{{ task.confirmed_by.avatar }}" alt="confirmed-avatar"
                             style="width:100%; height:100%; border-radius:20%; object-fit:cover;">
                     </div>
@@ -59,102 +57,136 @@
 
         <!-- Task title & description -->
         <h4 style="color:#e6e9ef;">{{ task.name }}</h4>
-        {% if task.column%}
-        <h5 style="color:#606060;">{{ task.column.name }} | позиция колонки: {{ task.column.position }}</h4>
+        {% if task.column %}
+        <h5 style="color:#606060;">{{ task.column.name }} | позиция колонки: {{ task.column.position }}</h5>
+        {% endif %}
+        <p style="color:#cfd6e4;">{{ task.description }}</p>
+
+        <!-- Priority -->
+        <div class="mb-2" style="color:#e6e9ef;">
+            Приоритет: <strong style="color: {{ task.priority | taskprioritycolor }};">{{ task.priority |
+                taskpriorityname }}</strong>
+        </div>
+
+        <!-- Labels -->
+        {% if task.labels %}
+        <div class="mb-2 d-flex flex-wrap gap-2">
+            {% for label in task.labels %}
+            <span
+                style="background-color:{{ label.color }}; color:#fff; padding:0.25rem 0.6rem; border-radius:0.5rem; font-size:0.8rem; font-weight:500;">
+                {{ label.name }}
+            </span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="color:#9aa4b2; font-size:0.9rem;">
+            Создана: {{ task.created_at | datetimeformat }}
+        </div>
+
+        <!-- Task actions (move/assign/confirm) -->
+        <div class="d-flex justify-content-end gap-2 mt-3">
+            {% if task.column and task.assignee and task.assignee.id == user_id and task.column.position > 1 %}
+            <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position - 1 }}">
+                <button class="form-control" style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+                    ← В предыдущую колонку
+                </button>
+            </form>
             {% endif %}
-            <p style="color:#cfd6e4;">{{ task.description }}</p>
-
-            <!-- Priority -->
-            <!-- Priority -->
-            <div class="mb-2" style="color:#e6e9ef;">
-                Приоритет: <strong style="color: {{ task.priority | taskprioritycolor }};">{{ task.priority |
-                    taskpriorityname }}</strong>
-            </div>
-
-            <!-- Labels -->
-            {% if task.labels %}
-            <div class="mb-2 d-flex flex-wrap gap-2">
-                {% for label in task.labels %}
-                <span
-                    style="background-color:{{ label.color }}; color:#fff; padding:0.25rem 0.6rem; border-radius:0.5rem; font-size:0.8rem; font-weight:500;">
-                    {{ label.name }}
-                </span>
-                {% endfor %}
-            </div>
+            {% if task.assignee and not task.confirmed_by and task.assignee.id == user_id and not task.is_in_last_column
+            %}
+            <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position + 1 }}">
+                <button class="form-control" style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
+                    В следующую колонку →
+                </button>
+            </form>
             {% endif %}
+        </div>
 
-            <div style="color:#9aa4b2; font-size:0.9rem;">
-                Создана: {{ task.created_at | datetimeformat }}
+        <div class="d-flex flex-column gap-2 mt-3">
+            {% if not task.assignee and not task.confirmed_by and user_role | issufficientrole("min_assignee_task_role")
+            %}
+            <form method="post" action="/board/task-assignee/{{ task.id }}">
+                <button type="submit" class="w-100 btn"
+                    style="background-color:#479e47; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
+                    Взять задачу в работу
+                </button>
+            </form>
+            {% endif %}
+            {% if not task.confirmed_by and user_role | issufficientrole("min_confirm_task_role") %}
+            <form method="post" action="/board/task-confirm/{{ task.id }}">
+                <button type="submit" class="w-100 btn"
+                    style="background-color:#742525; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
+                    Закрыть задачу
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        <div class="mt-3">
+            <a href="/board/{{ task.board_id }}" class="btn w-100"
+                style="background-color:#343c74; color:#e6e9ef; padding:0.6rem; font-weight:500; text-align:center;">
+                Вернуться на доску
+            </a>
+        </div>
+
+        {% if error %}
+        <div
+            style="background-color:#3a2f3f; color:#f2a8a8; font-size:0.85rem; padding:0.5rem 0.75rem; border-radius:0.5rem; margin-top:0.5rem; border:1px solid #4a5268; text-align:center;">
+            {% if error == 409 %}Достигнут WIP лимит{% elif error == 422 %}Отсутствует первая колонка{% else %}Произошла
+            ошибка{% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Comments Section -->
+        <hr class="my-4" style="border-color:#3a4154;">
+        <h5 style="color:#e6e9ef; margin-bottom:1rem;">Комментарии</h5>
+
+        <!-- Comment form -->
+        <form method="post" action="/board/task/{{ task.id }}/comment">
+            <div class="mb-3">
+                <textarea name="comment_text" rows="3" class="form-control"
+                    style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; border-radius:0.5rem; padding:0.6rem;"
+                    placeholder="Написать комментарий..." required></textarea>
+                <style>
+                    textarea[placeholder]::placeholder {
+                        color: #9aa4b2;
+                        /* новый цвет плейсхолдера */
+                        opacity: 1;
+                        /* чтобы цвет был полностью виден */
+                    }
+                </style>
             </div>
+            <button type="submit" class="btn w-100"
+                style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268; font-weight:500; padding:0.6rem;">
+                Отправить
+            </button>
+        </form>
 
-            <div class="d-flex justify-content-end gap-2 mt-3">
-                {% if task.column and task.assignee and task.assignee.id == user_id and task.column.position > 1 %}
-                <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position - 1 }}">
-                    <button class="form-control"
-                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
-                        ← В предыдущую колонку
-                    </button>
-                </form>
-                {% endif %}
-
-                {% if task.assignee and not task.confirmed_by and task.assignee.id == user_id and not
-                task.is_in_last_column %}
-                <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position + 1 }}">
-                    <button class="form-control"
-                        style="background-color:#3d4054; color:#e6e9ef; border:1px solid #4a5268;">
-                        В следующую колонку →
-                    </button>
-                </form>
-                {% endif %}
-            </div>
-
-            <div class="d-flex flex-column gap-2 mt-3">
-                {% if not task.assignee and not task.confirmed_by and user_role |
-                issufficientrole("min_assignee_task_role") %}
-                <form method="post" action="/board/task-assignee/{{ task.id }}">
-                    <button type="submit" class="w-100 btn"
-                        style="background-color:#479e47; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
-                        Взять задачу в работу
-                    </button>
-                </form>
-                {% endif %}
-
-                {% if not task.confirmed_by and user_role | issufficientrole("min_confirm_task_role") %}
-                <form method="post" action="/board/task-confirm/{{ task.id }}">
-                    <button type="submit" class="w-100 btn"
-                        style="background-color:#742525; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem; font-weight:500;">
-                        Закрыть задачу
-                    </button>
-                </form>
-                {% endif %}
-            </div>
-            <div class="mt-3">
-                <a href="/board/{{ task.board_id }}" class="btn w-100"
-                    style="background-color:#343c74; color:#e6e9ef; padding:0.6rem; font-weight:500; text-align:center;">
-                    Вернуться на доску
+        <!-- Existing comments -->
+        <div class="mt-4 d-flex flex-column gap-3">
+            {% for comment in task.comments %}
+            <div class="d-flex gap-3"
+                style="background-color:#2a2f3f; border:1px solid #4a5268; border-radius:0.5rem; padding:0.6rem;">
+                <a href="/user/id/{{ comment.author.id }}" style="text-decoration:none; color:inherit;">
+                    <div class="avatar" style="width:48px; height:48px; border-radius:20%; overflow:hidden;">
+                        <img src="/static/avatars/{{ comment.author.avatar }}" alt="avatar"
+                            style="width:100%; height:100%; object-fit:cover;">
+                    </div>
                 </a>
+                <div>
+                    <div style="color:#e6e9ef; font-weight:500;">{{ comment.author.first_name }} {{
+                        comment.author.last_name }}</div>
+                    <div style="color:#9aa4b2; font-size:0.85rem;">@{{ comment.author.username }} • {{
+                        comment.created_at | datetimeformat }}</div>
+                    <div style="color:#cfd6e4; margin-top:0.25rem;">{{ comment.text }}</div>
+                </div>
             </div>
+            {% else %}
+            <div style="color:#9aa4b2; font-size:0.9rem;">Комментариев пока нет</div>
+            {% endfor %}
+        </div>
 
-            {% if error %}
-            <div style="
-    background-color:#3a2f3f;
-    color:#f2a8a8;
-    font-size:0.85rem;
-    padding:0.5rem 0.75rem;
-    border-radius:0.5rem;
-    margin-top:0.5rem;
-    border:1px solid #4a5268;
-    text-align:center;
-">
-                {% if error == 409 %}
-                Достигнут WIP лимит
-                {% elif error == 422 %}
-                Отсутствует первая колонка
-                {% else %}
-                Произошла ошибка
-                {% endif %}
-            </div>
-            {% endif %}
     </div>
 </div>
 {% endblock %}

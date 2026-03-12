@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}История перемещений | Pochatox{% endblock %}
+
+{% block content %}
+<style>
+    /* Таблица и tbody */
+    .table.sortable,
+    .table.sortable tbody,
+    .table.sortable tr,
+    .table.sortable td {
+        background-color: #2a2f3f !important;
+        color: #e6e9ef !important;
+        border-color: #3a4154 !important;
+    }
+
+    /* Заголовок */
+    .table.sortable thead {
+        background-color: #252b3a !important;
+    }
+
+    .table.sortable thead th {
+        border-bottom: 1px solid #3a4154 !important;
+        color: #9aa4b2 !important;
+    }
+
+    /* Hover строк */
+    .table.sortable tbody tr:hover {
+        background-color: #32384a !important;
+    }
+
+    /* Ячейки */
+    .table.sortable td,
+    .table.sortable th {
+        padding: 0.6rem 0.7rem;
+    }
+
+    /* Курсор сортировки */
+    table.sortable thead th {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    table.sortable thead th:hover {
+        color: #e6e9ef !important;
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="mt-3">
+        <a href="/board/{{ board_id }}" class="btn w-100"
+            style="background-color:#343c74; color:#e6e9ef; padding:0.6rem; font-weight:500; text-align:center;">
+            Вернуться на доску
+        </a>
+    </div>
+    <br>
+    <div class="p-4 rounded shadow-sm" style="background:#232834; border:1px solid #3a4154;">
+        <h4 class="text-light mb-4">История перемещений задач</h4>
+
+        {% if history %}
+
+        <div class="table-responsive">
+
+            <table class="table sortable align-middle mb-0">
+                <thead style="border-bottom:1px solid #3a4154;">
+                    <tr style="color:#9aa4b2; font-size:0.9rem;">
+                        <th>ID</th>
+                        <th>Задача</th>
+                        <th>Приоритет</th>
+                        <th>Колонка</th>
+                        <th>Переместил</th>
+                        <th>Исполнитель</th>
+                        <th>Закрыл</th>
+                        <th>Дата перемещения</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in history %}
+                    <tr style="border-bottom:1px solid #343a4d;">
+
+                        <td class="text-secondary small">
+                            {{ item.task.id }}
+                        </td>
+
+                        <td>
+                            <a href="/board/task/{{ item.task.id }}"
+                                style="color:#e6e9ef; text-decoration:none; font-weight:500;">
+                                {{ item.task.name }}
+                            </a>
+                        </td>
+
+                        <td>
+                            <strong style="color: {{ item.task.priority | taskprioritycolor }};">
+                                {{ item.task.priority | taskpriorityname }}
+                            </strong>
+                        </td>
+
+                        <td class="text-secondary">
+                            <a href="/board/column/{{ item.column.id }}" style="color:#9aa4b2; text-decoration:none;">
+                                {{ item.column.name }}
+                            </a>
+                            <div style="font-size:0.75rem;">позиция {{ item.column.position }}</div>
+                        </td>
+
+                        <td>
+                            <a href="/user/id/{{ item.user.id }}"
+                                class="d-flex align-items-center gap-2 text-decoration-none" style="color:#e6e9ef;">
+                                <img src="/static/avatars/{{ item.user.avatar }}"
+                                    style="width:28px; height:28px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+                                @{{ item.user.username }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {% if item.task.assignee %}
+                            <a href="/user/id/{{ item.task.assignee.id }}"
+                                class="d-flex align-items-center gap-2 text-decoration-none" style="color:#e6e9ef;">
+                                <img src="/static/avatars/{{ item.task.assignee.avatar }}"
+                                    style="width:28px; height:28px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+                                @{{ item.task.assignee.username }}
+                            </a>
+                            {% else %}
+                            <span class="text-secondary">—</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.task.confirmed_by %}
+                            <a href="/user/id/{{ item.task.confirmed_by.id }}"
+                                class="d-flex align-items-center gap-2 text-decoration-none" style="color:#e6e9ef;">
+                                <img src="/static/avatars/{{ item.task.confirmed_by.avatar }}"
+                                    style="width:28px; height:28px; border-radius:20%; border:1px solid #4a5268; object-fit:cover;">
+                                @{{ item.task.confirmed_by.username }}
+                            </a>
+                            {% else %}
+                            <span class="text-secondary">—</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-secondary small" data-sort="{{ item.moved_at }}">
+                            {{ item.moved_at | datetimeformat }}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+
+        {% else %}
+        <div class="text-secondary">История перемещений пуста</div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/tofsjonas/sortable/sortable.min.js"></script>
+
+<style>
+    table.sortable thead th {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    table.sortable thead th:hover {
+        color: #e6e9ef;
+    }
+
+    table.sortable tbody tr:hover {
+        background: #2f3547;
+    }
+
+    table.sortable td,
+    table.sortable th {
+        padding: 0.6rem 0.7rem;
+        vertical-align: middle;
+    }
+</style>
+
+{% endblock %}

@@ -70,6 +70,17 @@
         }
     </script>
     <div class="d-flex gap-2 mb-3">
+        {% if user_role | issufficientrole("min_invite_role")
+        or user_role | issufficientrole("min_delete_user_role")
+        or user_role | issufficientrole("min_create_maintainer_role")
+        %}
+        <a href="/board/{{ board.id }}/management" class="btn flex-fill"
+            style="background-color:#7250b7; color:#e6e9ef; border:1px solid #4a5268;">
+            Управлять командой
+        </a>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2 mb-3">
         <a href="/board/{{ board.id }}/not-assigned-tasks" class="btn flex-fill"
             style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268;">
             Не взятые задачи
@@ -84,7 +95,15 @@
             style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268;">
             Список участников
         </a>
+
+        {% if user_role | issufficientrole("min_task_transitions_role") %}
+        <a href="/board/{{ board.id }}/task-transitions" class="btn flex-fill"
+            style="background-color:#5060b7; color:#e6e9ef; border:1px solid #4a5268;">
+            История перемещений
+        </a>
+        {% endif %}
     </div>
+
     <div id="addLabelForm" class="card p-4 mb-4 d-none" style="background:#232834; border:1px solid #3a4154;">
         <form method="post" action="/board/label" autocomplete="off">
             <input type="hidden" name="label_board_id" value="{{ board.id }}">
