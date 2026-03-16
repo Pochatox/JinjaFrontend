@@ -1,0 +1,7 @@
+services:
+  jinja_frontend:
+    build: .
+    ports:
+      - "8280:8280"
+    env_file:
+      - example.env
