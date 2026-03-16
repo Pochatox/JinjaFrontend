@@ -82,7 +82,7 @@ class AuthController(BaseController[AuthConfig]):
             }
         )
 
-    @post("/registration")
+    @post("/registration", name="registration_submit")
     async def registration_submit(
         self, request: Request, http_client: HttpClient
     ) -> Template | Redirect:
@@ -112,3 +112,14 @@ class AuthController(BaseController[AuthConfig]):
                 "auth/registration.html",
                 context={"error": self.get_error(httpx_response)}
             )
+
+    @get('/logout', name='logout')
+    async def logout(self) -> Redirect:
+        response = Redirect('/auth/login')
+        response.delete_cookie('access_token', path='/')
+        response.delete_cookie('refresh_token', path='/')
+        return response
+
+    @get('/logout-request', name='logout-request')
+    async def logout_request(self) -> Template:
+        return Template('/auth/logout.html')

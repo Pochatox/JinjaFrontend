@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Выход | Pochatox{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex justify-content-center">
+    <div class="card p-4 shadow text-center"
+        style="max-width:500px; width:100%; background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
+
+        <h3 class="mb-3" style="color:#e6e9ef;">Выход из аккаунта</h3>
+        <p class="mb-4" style="color:#cfd6e4;">
+            Нажмите кнопку ниже, чтобы выйти из аккаунта и очистить локальные данные браузера.
+        </p>
+
+        <button id="logout-btn" class="btn w-100"
+            style="background-color:#a94442; color:#ffffff; border:1px solid #c05a58; padding:0.75rem; font-weight:500;">
+            Выйти из аккаунта
+        </button>
+    </div>
+</div>
+
+<script>
+document.getElementById('logout-btn').addEventListener('click', async function () {
+    try {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+        }
+
+        document.cookie.split(";").forEach(function(cookie) {
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/";
+        });
+
+        window.location.href = "/auth/logout";
+    } catch (e) {
+        window.location.href = "/auth/logout";
+    }
+});
+</script>
+{% endblock %}

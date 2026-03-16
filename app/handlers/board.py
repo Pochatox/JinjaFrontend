@@ -86,9 +86,15 @@ class BoardController(BaseController[BoardConfig]):
         if http_status == HttpResponseStatuses.REDIRECT:
             return httpx_response
         if httpx_response.status_code == 201:
+            board = httpx_response.json()
             response = Template(
                 "boards/board.html",
-                context={"board": httpx_response.json()}
+                context={
+                    "board": board,
+                    "user_role": await self.get_user_role(
+                        request, http_client, board['id']
+                    )
+                }
             )
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
@@ -547,3 +553,137 @@ class BoardController(BaseController[BoardConfig]):
             return response
         else:
             raise NotFoundException
+
+    @post('/{board_id:str}/invite', name='invite_request')
+    async def invite_request(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        form = await request.form()
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='post',
+            path='/user/invite-request',
+            json={
+                "invited_username": form.get('invited_username'),
+                "board_id": board_id
+            },
+            expected_error_statuses=[403, 409, 422]
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+
+        if httpx_response.status_code == 201:
+            response = Redirect(f'/board/{board_id}/user-list')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+        else:
+            http_status_e, httpx_response_e = await self.request(
+                http_client=http_client,
+                request=request,
+                method='get',
+                path=f'/board/{board_id}/users-list'
+            )
+            if http_status_e == HttpResponseStatuses.REDIRECT:
+                return httpx_response_e
+            else:
+                return Template(
+                    "boards/management.html",
+                    context={
+                        "board_users": httpx_response_e.json(),
+                        "user_role": await self.get_user_role(
+                            request, http_client, board_id
+                        ),
+                        "error": self.get_error(httpx_response)
+                    }
+                )
+
+    @post('/{board_id:str}/delete_user', name='delete_user')
+    async def delete_user(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        form = await request.form()
+        user_id = form.get('removed_username')
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='delete',
+            path='/board/user',
+            json={
+                "user_id": user_id,
+                "board_id": board_id
+            },
+            expected_error_statuses=[403, 409, 422]
+        )
+
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+
+        if httpx_response.status_code == 204:
+            response = Redirect(f'/board/{board_id}/user-list')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        else:
+            http_status_e, httpx_response_e = await self.request(
+                http_client=http_client,
+                request=request,
+                method='get',
+                path=f'/board/{board_id}/users-list'
+            )
+            return Template(
+                "boards/management.html",
+                context={
+                    "error": self.get_error(httpx_response),
+                    "board_users": httpx_response_e.json(),
+                    "user_role": await self.get_user_role(
+                        request, http_client, board_id
+                    )
+                }
+            )
+
+    @post('/{board_id:str}/maintainer', name='create_maintainer')
+    async def create_maintainer(
+        self, request: Request, http_client: HttpClient, board_id: str
+    ) -> Template | Redirect:
+        form = await request.form()
+        user_id = form.get('user_id')
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='post',
+            path=f'/board/{board_id}/maintainer',
+            json={
+                "maintainer_id": user_id,
+            },
+            expected_error_statuses=[403, 409, 422]
+        )
+
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+
+        if httpx_response.status_code in (200, 201):
+            response = Redirect(f'/board/{board_id}/user-list')
+            if http_status == HttpResponseStatuses.NEW_TOKENS:
+                response = self.set_tokens(response, httpx_response)
+            return response
+
+        else:
+            http_status_e, httpx_response_e = await self.request(
+                http_client=http_client,
+                request=request,
+                method='get',
+                path=f'/board/{board_id}/users-list'
+            )
+            return Template(
+                "boards/management.html",
+                context={
+                    "error": self.get_error(httpx_response),
+                    "board_users": httpx_response_e.json(),
+                    "user_role": await self.get_user_role(
+                        request, http_client, board_id
+                    )
+                }
+            )

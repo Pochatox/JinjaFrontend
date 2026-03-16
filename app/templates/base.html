@@ -29,7 +29,7 @@
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                     <li><a class="dropdown-item" href="/user/me">Профиль</a></li>
                     <li><a class="dropdown-item" href="/">Проекты</a></li>
-                    <li><a class="dropdown-item text-danger" href="/auth/logout">Выход</a></li>
+                    <li><a class="dropdown-item text-danger" href="/auth/logout-request">Выход</a></li>
                 </ul>
             </div>
         </div>
@@ -49,6 +49,7 @@
                 if (!r.ok) return;
 
                 const user = await r.json();
+                if (user == null) return;
                 localStorage.setItem("user", JSON.stringify(user));
                 renderUser(user);
             } catch { }
