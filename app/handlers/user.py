@@ -76,3 +76,22 @@ class UserController(BaseController[UserConfig]):
             )
         else:
             raise NotFoundException
+
+    @get("/invite/{token:str}", name="invite")
+    async def invite(
+        self, request: Request, http_client: HttpClient, token: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/user/invite/{token}'
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        elif httpx_response.status_code == 200:
+            return Redirect('/')
+        else:
+            return Template(
+                "5xx.html"
+            )

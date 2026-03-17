@@ -113,6 +113,26 @@ class AuthController(BaseController[AuthConfig]):
                 context={"error": self.get_error(httpx_response)}
             )
 
+    @get("/verify-email/{token:str}", name="verify_email")
+    async def verify_email(
+        self, request: Request, http_client: HttpClient, token: str
+    ) -> Template | Redirect:
+        http_status, httpx_response = await self.request(
+            http_client=http_client,
+            request=request,
+            method='get',
+            path=f'/auth/verify-email/{token}',
+            update_tokens=False
+        )
+        if http_status == HttpResponseStatuses.REDIRECT:
+            return httpx_response
+        elif httpx_response.status_code == 200:
+            return Redirect("/auth/login")
+        else:
+            return Redirect(
+                "/auth/registration"
+            )
+
     @get('/logout', name='logout')
     async def logout(self) -> Redirect:
         response = Redirect('/auth/login')

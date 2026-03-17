@@ -56,8 +56,9 @@
                 <label for="password" style="color:#cfd6e4;">Пароль</label>
                 <input type="password" name="password" id="password" class="form-control"
                     style="background-color:#2a2f3f; color:#e6e9ef; border:1px solid #4a5268; padding:0.6rem;"
-                    pattern="[A-Za-z0-9!@#$%^&*()_+=-]+" title="Только английские буквы, цифры и символы !@#$%^&*()_+=-"
-                    required>
+                    pattern="[A-Za-z0-9!@#$%^&*()_+=-]{5,74}"
+                    title="Только английские буквы, цифры и символы !@#$%^&*()_+=-, от 5 до 74 символов" minlength="5"
+                    maxlength="74" required>
             </div>
 
             <div class="mb-2">

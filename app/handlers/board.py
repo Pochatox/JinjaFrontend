@@ -574,7 +574,7 @@ class BoardController(BaseController[BoardConfig]):
             return httpx_response
 
         if httpx_response.status_code == 201:
-            response = Redirect(f'/board/{board_id}/user-list')
+            response = Redirect(f'/board/{board_id}/users-list')
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
             return response
@@ -621,7 +621,7 @@ class BoardController(BaseController[BoardConfig]):
             return httpx_response
 
         if httpx_response.status_code == 204:
-            response = Redirect(f'/board/{board_id}/user-list')
+            response = Redirect(f'/board/{board_id}/users-list')
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
             return response
@@ -665,7 +665,7 @@ class BoardController(BaseController[BoardConfig]):
             return httpx_response
 
         if httpx_response.status_code in (200, 201):
-            response = Redirect(f'/board/{board_id}/user-list')
+            response = Redirect(f'/board/{board_id}/users-list')
             if http_status == HttpResponseStatuses.NEW_TOKENS:
                 response = self.set_tokens(response, httpx_response)
             return response

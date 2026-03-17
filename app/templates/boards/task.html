@@ -7,12 +7,10 @@
     <div class="card p-4 shadow position-relative"
         style="max-width:600px; width:100%; background-color:#232834; border:1px solid #3a4154; border-radius:0.9rem;">
 
-        <!-- Task ID -->
         <div style="position:absolute; top:12px; right:16px; font-size:0.75rem; color:#6b7280;">
             {{ task.id }}
         </div>
 
-        <!-- Assignee & Confirmed by -->
         <div class="d-flex align-items-center mb-4 mt-3 gap-4">
             {% if task.assignee %}
             <a href="/user/id/{{ task.assignee.id }}" style="text-decoration:none; color:inherit;">
@@ -55,20 +53,17 @@
             {% endif %}
         </div>
 
-        <!-- Task title & description -->
         <h4 style="color:#e6e9ef;">{{ task.name }}</h4>
         {% if task.column %}
         <h5 style="color:#606060;">{{ task.column.name }} | позиция колонки: {{ task.column.position }}</h5>
         {% endif %}
         <p style="color:#cfd6e4;">{{ task.description }}</p>
 
-        <!-- Priority -->
         <div class="mb-2" style="color:#e6e9ef;">
             Приоритет: <strong style="color: {{ task.priority | taskprioritycolor }};">{{ task.priority |
                 taskpriorityname }}</strong>
         </div>
 
-        <!-- Labels -->
         {% if task.labels %}
         <div class="mb-2 d-flex flex-wrap gap-2">
             {% for label in task.labels %}
@@ -84,7 +79,6 @@
             Создана: {{ task.created_at | datetimeformat }}
         </div>
 
-        <!-- Task actions (move/assign/confirm) -->
         <div class="d-flex justify-content-end gap-2 mt-3">
             {% if task.column and task.assignee and task.assignee.id == user_id and task.column.position > 1 %}
             <form method="post" action="/board/task/{{ task.id }}/move-to/{{ task.column.position - 1 }}">
@@ -138,11 +132,9 @@
         </div>
         {% endif %}
 
-        <!-- Comments Section -->
         <hr class="my-4" style="border-color:#3a4154;">
         <h5 style="color:#e6e9ef; margin-bottom:1rem;">Комментарии</h5>
 
-        <!-- Comment form -->
         <form method="post" action="/board/task/{{ task.id }}/comment">
             <div class="mb-3">
                 <textarea name="comment_text" rows="3" class="form-control"
@@ -151,9 +143,7 @@
                 <style>
                     textarea[placeholder]::placeholder {
                         color: #9aa4b2;
-                        /* новый цвет плейсхолдера */
                         opacity: 1;
-                        /* чтобы цвет был полностью виден */
                     }
                 </style>
             </div>
@@ -163,7 +153,6 @@
             </button>
         </form>
 
-        <!-- Existing comments -->
         <div class="mt-4 d-flex flex-column gap-3">
             {% for comment in task.comments %}
             <div class="d-flex gap-3"
